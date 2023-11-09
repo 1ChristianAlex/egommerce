@@ -1,20 +1,20 @@
-package user_controller
+package controller
 
 import (
 	"net/http"
 
 	"khrix/egommerce/internal/core/response"
-	"khrix/egommerce/internal/models"
-	user_service "khrix/egommerce/internal/modules/user/service"
+	"khrix/egommerce/internal/modules/user/repository/entities"
+	"khrix/egommerce/internal/modules/user/service"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
-	userService *user_service.UserService
+	userService *service.UserService
 }
 
-func NewModule(router *gin.RouterGroup, userServicer *user_service.UserService) {
+func NewModule(router *gin.RouterGroup, userServicer *service.UserService) {
 	controller := &UserController{
 		userService: userServicer,
 	}
@@ -26,12 +26,12 @@ func (controller *UserController) CreateNewUser(context *gin.Context) {
 	var userToCreate CreateUserInputDto
 
 	if err := context.ShouldBindJSON(&userToCreate); err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*models.User]{Result: nil, ErrorMessage: err.Error()})
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*entities.User]{Result: nil, ErrorMessage: err.Error()})
 		return
 	}
 
 	go func() {
-		result, err := controller.userService.CreateNewUser(&models.User{
+		result, err := controller.userService.CreateNewUser(&entities.User{
 			Username: userToCreate.Username,
 			Password: userToCreate.Password,
 			Name:     userToCreate.Name,
@@ -39,10 +39,10 @@ func (controller *UserController) CreateNewUser(context *gin.Context) {
 			Birthday: userToCreate.Birthday,
 		})
 		if err != nil {
-			context.JSON(http.StatusBadRequest, &response.ResponseResult[*models.User]{Result: nil, ErrorMessage: err.Error()})
+			context.JSON(http.StatusBadRequest, &response.ResponseResult[*entities.User]{Result: nil, ErrorMessage: err.Error()})
 			return
 		}
 
-		context.JSON(http.StatusCreated, &response.ResponseResult[*models.User]{Result: result, ErrorMessage: ""})
+		context.JSON(http.StatusCreated, &response.ResponseResult[*entities.User]{Result: result, ErrorMessage: ""})
 	}()
 }

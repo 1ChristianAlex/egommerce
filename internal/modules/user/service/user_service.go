@@ -1,21 +1,21 @@
-package user_service
+package service
 
 import (
-	"khrix/egommerce/internal/models"
-	user_repository "khrix/egommerce/internal/modules/user/repository"
+	"khrix/egommerce/internal/modules/user/repository"
+	"khrix/egommerce/internal/modules/user/repository/entities"
 )
 
 type UserService struct {
-	repository *user_repository.UserRepository
+	repository *repository.UserRepository
 }
 
-func NewUserService(repository *user_repository.UserRepository) *UserService {
+func NewUserService(repository *repository.UserRepository) *UserService {
 	return &UserService{
 		repository: repository,
 	}
 }
 
-func (service UserService) CreateNewUser(userModel *models.User) (newUser *models.User, error error) {
+func (service UserService) CreateNewUser(userModel *entities.User) (newUser *entities.User, error error) {
 	_, err := service.repository.CreateUser(userModel)
 
 	return userModel, err
