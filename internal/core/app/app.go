@@ -6,10 +6,13 @@ import (
 	"os"
 	"time"
 
-	"khrix/egommerce/internal/core/auth"
-	"khrix/egommerce/internal/modules/user/controller"
-	"khrix/egommerce/internal/modules/user/repository"
-	"khrix/egommerce/internal/modules/user/service"
+	userAuth "khrix/egommerce/internal/core/auth"
+	productController "khrix/egommerce/internal/modules/product/controller"
+	productRepository "khrix/egommerce/internal/modules/product/repository"
+	productService "khrix/egommerce/internal/modules/product/service"
+	userController "khrix/egommerce/internal/modules/user/controller"
+	userRepository "khrix/egommerce/internal/modules/user/repository"
+	userService "khrix/egommerce/internal/modules/user/service"
 	"khrix/egommerce/migrations"
 
 	"github.com/gin-contrib/cors"
@@ -44,13 +47,23 @@ func StartServer() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	passwordService := service.NewPasswordService()
-	jwtService := service.NewJwtService()
-	authHelper := auth.NewAuthHelper(jwtService)
-	userRepo := repository.NewUserRepository(database)
-	userService := service.NewUserService(userRepo, passwordService)
+	userR := userRepository.NewUserRepository(database)
+	productR := productRepository.NewProductRepository(database)
+	productImageR := productRepository.NewProductImageRepository(database)
 
-	controller.NewModule(&router.RouterGroup, userService, jwtService, authHelper)
+	passwordS := userService.NewPasswordService()
+	jwtS := userService.NewJwtService()
+	userS := userService.NewUserService(userR, passwordS)
+
+	productS := productService.NewProductService(productR, productImageR)
+
+	authHelper := userAuth.NewAuthHelper(jwtS)
+
+	apiRouter := router.Group("api", authHelper.JwtMiddleware)
+
+	userController.NewAuthModule(&router.RouterGroup, userS, jwtS)
+	userController.NewUserModule(apiRouter, userS)
+	productController.NewModule(apiRouter, productS)
 
 	httpServer.ListenAndServe()
 }

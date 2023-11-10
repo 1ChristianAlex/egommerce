@@ -24,4 +24,6 @@ func Migrate(database *gorm.DB) {
 		Email:    "christian.alexsander@outlook.com",
 		Birthday: time.Date(1999, time.June, 13, 0, 0, 0, 0, time.UTC),
 	})
+
+	ProductMigration(database)
 }
