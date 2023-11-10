@@ -1,6 +1,6 @@
 package response
 
-type ResponseResult[T any] struct {
+type ResponseResult[T interface{}] struct {
 	Result       T      `json:"result" `
 	ErrorMessage string `json:"errorMessage" `
 }

@@ -1,22 +1,64 @@
 package service
 
 import (
-	"khrix/egommerce/internal/modules/user/repository"
+	"errors"
+
+	"khrix/egommerce/internal/modules/user/di"
+	"khrix/egommerce/internal/modules/user/dto"
 	"khrix/egommerce/internal/modules/user/repository/entities"
 )
 
 type UserService struct {
-	repository *repository.UserRepository
+	repository      di.UserRepository
+	passwordService di.PasswordService
 }
 
-func NewUserService(repository *repository.UserRepository) *UserService {
+func NewUserService(repository di.UserRepository, passwordService di.PasswordService) *UserService {
 	return &UserService{
-		repository: repository,
+		repository:      repository,
+		passwordService: passwordService,
 	}
 }
 
-func (service UserService) CreateNewUser(userModel *entities.User) (newUser *entities.User, error error) {
-	_, err := service.repository.CreateUser(userModel)
+func (service UserService) CreateNewUser(userInput *dto.CreateUserInputDto) (newUser *dto.UserOutputDto, error error) {
+	hash, hashError := service.passwordService.HashPassword(userInput.Password)
 
-	return userModel, err
+	if hashError != nil {
+		return nil, errors.New("fail on create user password")
+	}
+
+	userModel := entities.User{
+		Username: userInput.Username,
+		Password: hash,
+		Name:     userInput.Name,
+		Email:    userInput.Email,
+		Birthday: userInput.Birthday,
+	}
+	user, err := service.repository.CreateUser(&userModel)
+
+	return &dto.UserOutputDto{
+		Username:  user.Username,
+		Name:      user.Name,
+		Email:     user.Email,
+		Birthday:  user.Birthday,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}, err
+}
+
+func (service UserService) TryLogin(email, password string) (newUser *dto.UserOutputDto, error error) {
+	user, err := service.repository.FindByEmail(email)
+
+	if !service.passwordService.CheckPasswordHash(password, user.Password) {
+		return nil, errors.New("wrong access")
+	}
+
+	return &dto.UserOutputDto{
+		Username:  user.Username,
+		Name:      user.Name,
+		Email:     user.Email,
+		Birthday:  user.Birthday,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}, err
 }

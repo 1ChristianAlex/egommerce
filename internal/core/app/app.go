@@ -6,11 +6,12 @@ import (
 	"os"
 	"time"
 
-	user_controller "khrix/egommerce/internal/modules/user/controller"
-	user_repository "khrix/egommerce/internal/modules/user/repository"
-	user_service "khrix/egommerce/internal/modules/user/service"
+	"khrix/egommerce/internal/modules/user/controller"
+	"khrix/egommerce/internal/modules/user/repository"
+	"khrix/egommerce/internal/modules/user/service"
 	"khrix/egommerce/migrations"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +23,16 @@ func StartServer() {
 
 	router := gin.Default()
 
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"PUT", "PATCH", "POST", "GET", "DELETE"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+
+		MaxAge: 12 * time.Hour,
+	}))
+
 	address := fmt.Sprintf("%s:%s", os.Getenv("API_URL"), os.Getenv("API_PORT"))
 
 	httpServer := &http.Server{
@@ -32,10 +43,12 @@ func StartServer() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	userRepo := user_repository.NewUserRepository(database)
-	userService := user_service.NewUserService(userRepo)
+	passwordService := service.NewPasswordService()
+	jwtService := service.NewJwtService()
+	userRepo := repository.NewUserRepository(database)
+	userService := service.NewUserService(userRepo, passwordService)
 
-	user_controller.NewModule(&router.RouterGroup, userService)
+	controller.NewModule(&router.RouterGroup, userService, jwtService)
 
 	httpServer.ListenAndServe()
 }
