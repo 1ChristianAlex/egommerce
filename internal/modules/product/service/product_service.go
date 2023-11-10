@@ -51,3 +51,34 @@ func (service ProductService) CreateNewProduct(productItem dto.CreateProductInpu
 		ID:            newProduct.ID,
 	}, nil
 }
+
+func (service ProductService) ListAllProducts() (*[]dto.ProductOutputDto, error) {
+	productList, errList := service.productRepository.ListProducts()
+
+	if errList != nil {
+		return nil, errors.New("error on list product")
+	}
+
+	productOutputList := make([]dto.ProductOutputDto, 0)
+
+	for _, produtItem := range *productList {
+
+		images := make([]string, 0)
+
+		for _, img := range produtItem.ProductImage {
+			images = append(images, img.Source)
+		}
+
+		productOutputList = append(productOutputList, dto.ProductOutputDto{
+			ID:            produtItem.ID,
+			Name:          produtItem.Name,
+			Description:   produtItem.Description,
+			Price:         produtItem.Price,
+			DiscountPrice: produtItem.DiscountPrice,
+			Quantity:      produtItem.Quantity,
+			Images:        images,
+		})
+	}
+
+	return &productOutputList, nil
+}

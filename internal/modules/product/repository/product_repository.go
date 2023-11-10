@@ -23,3 +23,11 @@ func (repo ProductRepository) CreateNewProduct(productItem *entities.Product) (*
 
 	return productItem, result.Error
 }
+
+func (repo ProductRepository) ListProducts() (*[]entities.Product, error) {
+	productList := make([]entities.Product, 0)
+
+	result := repo.database.Preload(reflect.TypeOf(&entities.ProductImage{}).Elem().Name()).Find(&productList)
+
+	return &productList, result.Error
+}
