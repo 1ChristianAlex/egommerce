@@ -19,6 +19,17 @@ func NewJwtService() *JwtService {
 	}
 }
 
+func (service *JwtService) getToken(tokenString string) (*jwt.Token, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &dto.UserOutputTokenDto{}, func(token *jwt.Token) (interface{}, error) {
+		return service.signingKey, nil
+	}, jwt.WithLeeway(5*time.Second))
+	if err != nil {
+		return nil, errors.New("fail on get token info")
+	}
+
+	return token, nil
+}
+
 func (service *JwtService) NewClains(user dto.UserOutputDto) (string, error) {
 	claims := dto.UserOutputTokenDto{
 		UserOutputDto: user,
@@ -36,11 +47,9 @@ func (service *JwtService) NewClains(user dto.UserOutputDto) (string, error) {
 }
 
 func (service *JwtService) FromClains(tokenString string) (*dto.UserOutputTokenDto, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &dto.UserOutputTokenDto{}, func(token *jwt.Token) (interface{}, error) {
-		return service.signingKey, nil
-	}, jwt.WithLeeway(5*time.Second))
+	token, err := service.getToken(tokenString)
 	if err != nil {
-		return nil, errors.New("fail on get from claim")
+		return nil, err
 	}
 
 	if claims, ok := token.Claims.(*dto.UserOutputTokenDto); ok {
@@ -48,4 +57,13 @@ func (service *JwtService) FromClains(tokenString string) (*dto.UserOutputTokenD
 	}
 
 	return nil, errors.New("fail on get from claim")
+}
+
+func (service *JwtService) IsValid(tokenString string) error {
+	token, err := service.getToken(tokenString)
+	if err != nil || !token.Valid {
+		return errors.New("invalid token")
+	}
+
+	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"khrix/egommerce/internal/core/auth"
 	"khrix/egommerce/internal/modules/user/controller"
 	"khrix/egommerce/internal/modules/user/repository"
 	"khrix/egommerce/internal/modules/user/service"
@@ -14,6 +15,19 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
+
+// func loadDIModules(database *gorm.DB){
+
+// 	func getInterfaceName(i interface{}){
+// 		name := reflect.TypeOf((*i)(nil)).Elem().Name()
+
+// 		return name
+// 	}
+
+// 	modules:= map[string]{
+
+// 	}
+// }
 
 func StartServer() {
 	LoadEnvFile()
@@ -45,10 +59,11 @@ func StartServer() {
 
 	passwordService := service.NewPasswordService()
 	jwtService := service.NewJwtService()
+	authHelper := auth.NewAuthHelper(jwtService)
 	userRepo := repository.NewUserRepository(database)
 	userService := service.NewUserService(userRepo, passwordService)
 
-	controller.NewModule(&router.RouterGroup, userService, jwtService)
+	controller.NewModule(&router.RouterGroup, userService, jwtService, authHelper)
 
 	httpServer.ListenAndServe()
 }

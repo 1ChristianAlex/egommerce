@@ -27,9 +27,9 @@ func (repo *UserRepository) CreateUser(userModel *entities.User) (*entities.User
 func (repo *UserRepository) FindByEmail(email string) (*entities.User, error) {
 	user := entities.User{Email: email}
 
-	result := repo.database.First(&user)
+	result := repo.database.Where(&user).First(&user)
 
-	if result.Error != nil {
+	if result.Error != nil || result.RowsAffected == 0 {
 		return nil, errors.New("wrong access")
 	}
 

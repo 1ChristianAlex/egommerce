@@ -21,6 +21,12 @@ func NewUserService(repository di.UserRepository, passwordService di.PasswordSer
 }
 
 func (service UserService) CreateNewUser(userInput *dto.CreateUserInputDto) (newUser *dto.UserOutputDto, error error) {
+	userExist, _ := service.repository.FindByEmail(userInput.Email)
+
+	if userExist != nil {
+		return nil, errors.New("email already exist")
+	}
+
 	hash, hashError := service.passwordService.HashPassword(userInput.Password)
 
 	if hashError != nil {
@@ -37,6 +43,7 @@ func (service UserService) CreateNewUser(userInput *dto.CreateUserInputDto) (new
 	user, err := service.repository.CreateUser(&userModel)
 
 	return &dto.UserOutputDto{
+		Id:        user.Id,
 		Username:  user.Username,
 		Name:      user.Name,
 		Email:     user.Email,
@@ -48,12 +55,16 @@ func (service UserService) CreateNewUser(userInput *dto.CreateUserInputDto) (new
 
 func (service UserService) TryLogin(email, password string) (newUser *dto.UserOutputDto, error error) {
 	user, err := service.repository.FindByEmail(email)
+	if err != nil {
+		return nil, errors.New("wrong access")
+	}
 
 	if !service.passwordService.CheckPasswordHash(password, user.Password) {
 		return nil, errors.New("wrong access")
 	}
 
 	return &dto.UserOutputDto{
+		Id:        user.Id,
 		Username:  user.Username,
 		Name:      user.Name,
 		Email:     user.Email,

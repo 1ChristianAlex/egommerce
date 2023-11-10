@@ -20,6 +20,7 @@ type CreateUserInputDto struct {
 }
 
 type UserOutputDto struct {
+	Id        uint      `json:"id" `
 	Username  string    `json:"username" `
 	Name      string    `json:"name" `
 	Email     string    `json:"email" `

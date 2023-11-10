@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	coreDi "khrix/egommerce/internal/core/di"
 	"khrix/egommerce/internal/core/response"
 	"khrix/egommerce/internal/modules/user/di"
 	"khrix/egommerce/internal/modules/user/dto"
@@ -13,16 +14,21 @@ import (
 type UserController struct {
 	userService di.UserService
 	jwtService  di.JwtService
+	authHelper  coreDi.AuthHelper
 }
 
-func NewModule(router *gin.RouterGroup, userServicer di.UserService, jwtService di.JwtService) {
+func NewModule(router *gin.RouterGroup, userServicer di.UserService, jwtService di.JwtService, authHelper coreDi.AuthHelper) {
 	controller := &UserController{
 		userService: userServicer,
 		jwtService:  jwtService,
+		authHelper:  authHelper,
 	}
 
-	router.POST("/create", controller.CreateNewUser)
 	router.POST("/login", controller.DoLogin)
+
+	apiRouter := router.Group("api", controller.authHelper.JwtMiddleware)
+
+	apiRouter.POST("/create", controller.CreateNewUser)
 }
 
 func (controller *UserController) CreateNewUser(context *gin.Context) {
