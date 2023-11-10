@@ -16,19 +16,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// func loadDIModules(database *gorm.DB){
-
-// 	func getInterfaceName(i interface{}){
-// 		name := reflect.TypeOf((*i)(nil)).Elem().Name()
-
-// 		return name
-// 	}
-
-// 	modules:= map[string]{
-
-// 	}
-// }
-
 func StartServer() {
 	LoadEnvFile()
 

@@ -5,6 +5,7 @@ import (
 
 	coreDi "khrix/egommerce/internal/core/di"
 	"khrix/egommerce/internal/core/response"
+	"khrix/egommerce/internal/models"
 	"khrix/egommerce/internal/modules/user/di"
 	"khrix/egommerce/internal/modules/user/dto"
 
@@ -24,9 +25,9 @@ func NewModule(router *gin.RouterGroup, userServicer di.UserService, jwtService 
 		authHelper:  authHelper,
 	}
 
-	router.POST("/login", controller.DoLogin)
-
 	apiRouter := router.Group("api", controller.authHelper.JwtMiddleware)
+
+	router.POST("/login", controller.DoLogin)
 
 	apiRouter.POST("/create", controller.CreateNewUser)
 }
@@ -56,16 +57,29 @@ func (controller *UserController) DoLogin(context *gin.Context) {
 		return
 	}
 
-	result, err := controller.userService.TryLogin(
-		loginInput.Email,
-		loginInput.Password,
-	)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.UserOutputDto]{Result: nil, ErrorMessage: err.Error()})
+	channel := make(chan models.Resolve[*dto.UserOutputDto])
+	defer close(channel)
+
+	go func() {
+		result, err := controller.userService.TryLogin(
+			loginInput.Email,
+			loginInput.Password,
+		)
+
+		channel <- models.Resolve[*dto.UserOutputDto]{
+			Result: result,
+			Err:    err,
+		}
+	}()
+
+	resolve := <-channel
+
+	if resolve.Err != nil {
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.UserOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
 		return
 	}
 
-	token, errToken := controller.jwtService.NewClains(*result)
+	token, errToken := controller.jwtService.NewClains(*resolve.Result)
 
 	if errToken != nil {
 		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.UserOutputDto]{Result: nil, ErrorMessage: errToken.Error()})
@@ -77,7 +91,7 @@ func (controller *UserController) DoLogin(context *gin.Context) {
 			User  *dto.UserOutputDto `json:"user" `
 			Token string             `json:"token" `
 		}{
-			User: result, Token: token,
+			User: resolve.Result, Token: token,
 		},
 	},
 	)
