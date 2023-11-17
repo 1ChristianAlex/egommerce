@@ -37,8 +37,8 @@ func (service ProductService) CreateNewProduct(productItem dto.CreateProductInpu
 
 	images := make([]string, len(newProduct.ProductImage))
 
-	for _, img := range newProduct.ProductImage {
-		images = append(images, img.Source)
+	for index, img := range newProduct.ProductImage {
+		images[index] = img.Source
 	}
 
 	return &dto.ProductOutputDto{
@@ -59,17 +59,17 @@ func (service ProductService) ListAllProducts() (*[]dto.ProductOutputDto, error)
 		return nil, errors.New("error on list product")
 	}
 
-	productOutputList := make([]dto.ProductOutputDto, 0)
+	productOutputList := make([]dto.ProductOutputDto, len(*productList))
 
-	for _, produtItem := range *productList {
+	for productIndex, produtItem := range *productList {
 
-		images := make([]string, 0)
+		images := make([]string, len(produtItem.ProductImage))
 
-		for _, img := range produtItem.ProductImage {
-			images = append(images, img.Source)
+		for imgIndex, img := range produtItem.ProductImage {
+			images[imgIndex] = img.Source
 		}
 
-		productOutputList = append(productOutputList, dto.ProductOutputDto{
+		productOutputList[productIndex] = dto.ProductOutputDto{
 			ID:            produtItem.ID,
 			Name:          produtItem.Name,
 			Description:   produtItem.Description,
@@ -77,8 +77,32 @@ func (service ProductService) ListAllProducts() (*[]dto.ProductOutputDto, error)
 			DiscountPrice: produtItem.DiscountPrice,
 			Quantity:      produtItem.Quantity,
 			Images:        images,
-		})
+		}
 	}
 
 	return &productOutputList, nil
+}
+
+func (service ProductService) FindById(productId uint) (*dto.ProductOutputDto, error) {
+	productItem, errList := service.productRepository.FindById(productId)
+
+	if errList != nil {
+		return nil, errors.New("error on list product")
+	}
+
+	images := make([]string, len(productItem.ProductImage))
+
+	for imgIndex, img := range productItem.ProductImage {
+		images[imgIndex] = img.Source
+	}
+
+	return &dto.ProductOutputDto{
+		ID:            productItem.ID,
+		Name:          productItem.Name,
+		Description:   productItem.Description,
+		Price:         productItem.Price,
+		DiscountPrice: productItem.DiscountPrice,
+		Quantity:      productItem.Quantity,
+		Images:        images,
+	}, nil
 }

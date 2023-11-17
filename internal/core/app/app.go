@@ -7,6 +7,7 @@ import (
 	"time"
 
 	userAuth "khrix/egommerce/internal/core/auth"
+	fileupload "khrix/egommerce/internal/libs/file_upload"
 	productController "khrix/egommerce/internal/modules/product/controller"
 	productRepository "khrix/egommerce/internal/modules/product/repository"
 	productService "khrix/egommerce/internal/modules/product/service"
@@ -54,6 +55,7 @@ func StartServer() {
 	passwordS := userService.NewPasswordService()
 	jwtS := userService.NewJwtService()
 	userS := userService.NewUserService(userR, passwordS)
+	productImageS := productService.NewProductImageService(productImageR, productR, fileupload.NewFileUploadManager())
 
 	productS := productService.NewProductService(productR, productImageR)
 
@@ -64,6 +66,7 @@ func StartServer() {
 	userController.NewAuthModule(&router.RouterGroup, userS, jwtS)
 	userController.NewUserModule(apiRouter, userS)
 	productController.NewModule(apiRouter, productS)
+	productController.NewProductImageController(apiRouter, productS, productImageS)
 
 	httpServer.ListenAndServe()
 }

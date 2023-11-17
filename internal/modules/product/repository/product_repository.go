@@ -31,3 +31,23 @@ func (repo ProductRepository) ListProducts() (*[]entities.Product, error) {
 
 	return &productList, result.Error
 }
+
+func (repo ProductRepository) UpdateProductItem(productItem *entities.Product) (*entities.Product, error) {
+	result := repo.database.Updates(&productItem)
+
+	return productItem, result.Error
+}
+
+func (repo ProductRepository) DeleteProductItem(productId uint) error {
+	result := repo.database.Delete(&entities.Product{Model: gorm.Model{ID: productId}})
+
+	return result.Error
+}
+
+func (repo ProductRepository) FindById(productId uint) (*entities.Product, error) {
+	finded := entities.Product{}
+
+	result := repo.database.Preload(reflect.TypeOf(&entities.ProductImage{}).Elem().Name()).Where(&entities.Product{Model: gorm.Model{ID: productId}}).Find(&finded)
+
+	return &finded, result.Error
+}

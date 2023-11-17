@@ -1,26 +1,17 @@
 package app
 
 import (
-	"fmt"
 	"log"
-	"os"
-	"path/filepath"
-	"strings"
+
+	pathresolver "khrix/egommerce/internal/libs/path_resolver"
 
 	"github.com/joho/godotenv"
 )
 
 func LoadEnvFile() {
-	base, _ := os.Getwd()
-	fmt.Println(base)
+	enfFile := pathresolver.GetCurrentPath("config/environment/.env")
 
-	localPath := filepath.Join(base, "/../../", "config/environment/.env")
-
-	if strings.HasSuffix(base, "egommerce") {
-		localPath = filepath.Join(base, "config/environment/.env")
-	}
-
-	err := godotenv.Load(localPath)
+	err := godotenv.Load(enfFile)
 	if err != nil {
 		log.Fatal("Error loading .env file")
 		return

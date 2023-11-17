@@ -1,3 +1,5 @@
 .idea
 .server
 .exe
+asset/
+cmd/server/*.exe
