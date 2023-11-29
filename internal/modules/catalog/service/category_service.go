@@ -15,7 +15,8 @@ type CategoryService struct {
 	productMapper      di.ProductMapper
 }
 
-func NewCategoryService(categoryRepository di.CategoryRepository,
+func NewCategoryService(
+	categoryRepository di.CategoryRepository,
 	categoryMapper di.CategoryMapper,
 	productRepository di.ProductRepository,
 	productMapper di.ProductMapper,
@@ -51,11 +52,16 @@ func (c CategoryService) CreateSubCategory(name string, categoryId uint) (*dto.C
 }
 
 func (c CategoryService) SetProductCategory(productId, categoryId uint) (*dto.ProductOutputDto, error) {
-	productUpdate, err := c.productRepository.UpdateProductItem(&entities.Product{
+	_, err := c.productRepository.UpdateProductItem(&entities.Product{
 		Model:    gorm.Model{ID: productId},
 		Category: []*entities.Category{{Model: gorm.Model{ID: categoryId}}},
 	},
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	productUpdate, err := c.productRepository.FindById(productId)
 	if err != nil {
 		return nil, err
 	}

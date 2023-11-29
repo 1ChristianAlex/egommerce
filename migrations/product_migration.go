@@ -13,6 +13,8 @@ func ProductMigration(database *gorm.DB) {
 	database.Migrator().CurrentDatabase()
 
 	database.AutoMigrate(&entities.Category{})
+	database.AutoMigrate(&entities.Product{})
+	database.AutoMigrate(&entities.ProductImage{})
 
 	firstCategory := entities.Category{
 		Name: "Test Category",
@@ -24,9 +26,6 @@ func ProductMigration(database *gorm.DB) {
 
 	database.Where(entities.Category{Model: firstCategory.Model}).Updates(&firstCategory)
 
-	database.AutoMigrate(&entities.Product{})
-	database.AutoMigrate(&entities.ProductImage{})
-
 	database.FirstOrCreate(&entities.Product{
 		Name:          "Product Item Test",
 		Description:   "Description Test",
@@ -34,5 +33,6 @@ func ProductMigration(database *gorm.DB) {
 		DiscountPrice: 1245.36,
 		Quantity:      154,
 		ProductImage:  []entities.ProductImage{{Source: "https://teste.com.br"}},
+		Category:      []*entities.Category{&firstCategory},
 	})
 }
