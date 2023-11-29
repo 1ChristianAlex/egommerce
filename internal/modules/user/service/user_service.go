@@ -43,7 +43,7 @@ func (service UserService) CreateNewUser(userInput *dto.CreateUserInputDto) (new
 	user, err := service.repository.CreateUser(&userModel)
 
 	return &dto.UserOutputDto{
-		Id:        user.Id,
+		Id:        user.ID,
 		Username:  user.Username,
 		Name:      user.Name,
 		Email:     user.Email,
@@ -64,7 +64,7 @@ func (service UserService) TryLogin(email, password string) (newUser *dto.UserOu
 	}
 
 	return &dto.UserOutputDto{
-		Id:        user.Id,
+		Id:        user.ID,
 		Username:  user.Username,
 		Name:      user.Name,
 		Email:     user.Email,

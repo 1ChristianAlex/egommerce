@@ -6,14 +6,19 @@ import (
 	"os"
 	"time"
 
-	userAuth "khrix/egommerce/internal/core/auth"
-	fileupload "khrix/egommerce/internal/libs/file_upload"
-	productController "khrix/egommerce/internal/modules/product/controller"
-	productRepository "khrix/egommerce/internal/modules/product/repository"
-	productService "khrix/egommerce/internal/modules/product/service"
-	userController "khrix/egommerce/internal/modules/user/controller"
-	userRepository "khrix/egommerce/internal/modules/user/repository"
-	userService "khrix/egommerce/internal/modules/user/service"
+	user_auth "khrix/egommerce/internal/core/auth"
+	file_upload "khrix/egommerce/internal/libs/file_upload"
+	category_controller "khrix/egommerce/internal/modules/categories/controller"
+	category_mapper "khrix/egommerce/internal/modules/categories/mapper"
+	category_repository "khrix/egommerce/internal/modules/categories/repository"
+	category_service "khrix/egommerce/internal/modules/categories/service"
+	product_controller "khrix/egommerce/internal/modules/product/controller"
+	product_mapper "khrix/egommerce/internal/modules/product/mapper"
+	product_repository "khrix/egommerce/internal/modules/product/repository"
+	product_service "khrix/egommerce/internal/modules/product/service"
+	user_controller "khrix/egommerce/internal/modules/user/controller"
+	user_repository "khrix/egommerce/internal/modules/user/repository"
+	user_service "khrix/egommerce/internal/modules/user/service"
 	"khrix/egommerce/migrations"
 
 	"github.com/gin-contrib/cors"
@@ -48,25 +53,37 @@ func StartServer() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	userR := userRepository.NewUserRepository(database)
-	productR := productRepository.NewProductRepository(database)
-	productImageR := productRepository.NewProductImageRepository(database)
+	productMapper := product_mapper.NewProductMapper()
+	categoryMapper := category_mapper.NewCategoryMapper()
 
-	passwordS := userService.NewPasswordService()
-	jwtS := userService.NewJwtService()
-	userS := userService.NewUserService(userR, passwordS)
-	productImageS := productService.NewProductImageService(productImageR, productR, fileupload.NewFileUploadManager())
+	userR := user_repository.NewUserRepository(database)
+	productR := product_repository.NewProductRepository(database)
+	productImageR := product_repository.NewProductImageRepository(database)
+	categoryRepository := category_repository.NewCategoryRepository(database)
 
-	productS := productService.NewProductService(productR, productImageR)
+	passwordS := user_service.NewPasswordService()
+	jwtS := user_service.NewJwtService()
+	userS := user_service.NewUserService(userR, passwordS)
+	productImageS := product_service.NewProductImageService(productImageR, productR, file_upload.NewFileUploadManager())
 
-	authHelper := userAuth.NewAuthHelper(jwtS)
+	categoryService := category_service.NewCategoryService(
+		categoryRepository,
+		categoryMapper,
+		productR,
+		productMapper,
+	)
+
+	productS := product_service.NewProductService(productR, productImageR, productMapper)
+
+	authHelper := user_auth.NewAuthHelper(jwtS)
 
 	apiRouter := router.Group("api", authHelper.JwtMiddleware)
 
-	userController.NewAuthModule(&router.RouterGroup, userS, jwtS)
-	userController.NewUserModule(apiRouter, userS)
-	productController.NewModule(apiRouter, productS)
-	productController.NewProductImageController(apiRouter, productS, productImageS)
+	user_controller.NewAuthModule(&router.RouterGroup, userS, jwtS)
+	user_controller.NewUserModule(apiRouter, userS)
+	product_controller.NewModule(apiRouter, productS)
+	product_controller.NewProductImageController(apiRouter, productS, productImageS)
+	category_controller.NewCategoryController(apiRouter, categoryService)
 
 	httpServer.ListenAndServe()
 }

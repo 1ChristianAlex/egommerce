@@ -23,10 +23,10 @@ func NewModule(router *gin.RouterGroup, productService di.ProductService) {
 }
 
 func (controller ProductController) CreateNewProductItem(context *gin.Context) {
-	var productBody dto.CreateProductInputDto
+	var productBody dto.ProductInputDto
 
 	if err := context.ShouldBindJSON(&productBody); err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.CreateProductInputDto]{Result: nil, ErrorMessage: err.Error()})
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.ProductInputDto]{Result: nil, ErrorMessage: err.Error()})
 		return
 	}
 
