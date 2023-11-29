@@ -26,5 +26,4 @@ func Migrate(database *gorm.DB) {
 	})
 
 	ProductMigration(database)
-	CategoryMigration(database)
 }

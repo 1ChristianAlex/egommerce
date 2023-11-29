@@ -3,7 +3,7 @@ package migrations
 import (
 	"fmt"
 
-	"khrix/egommerce/internal/modules/product/repository/entities"
+	"khrix/egommerce/internal/modules/catalog/repository/entities"
 
 	"gorm.io/gorm"
 )
@@ -11,6 +11,18 @@ import (
 func ProductMigration(database *gorm.DB) {
 	fmt.Println("Migrating")
 	database.Migrator().CurrentDatabase()
+
+	database.AutoMigrate(&entities.Category{})
+
+	firstCategory := entities.Category{
+		Name: "Test Category",
+	}
+
+	database.FirstOrCreate(&firstCategory)
+
+	firstCategory.SubCategory = []entities.Category{{Name: "Sub Category", CategoryID: &firstCategory.ID}}
+
+	database.Where(entities.Category{Model: firstCategory.Model}).Updates(&firstCategory)
 
 	database.AutoMigrate(&entities.Product{})
 	database.AutoMigrate(&entities.ProductImage{})

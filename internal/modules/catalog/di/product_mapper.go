@@ -1,8 +1,8 @@
 package di
 
 import (
-	"khrix/egommerce/internal/modules/product/dto"
-	"khrix/egommerce/internal/modules/product/repository/entities"
+	"khrix/egommerce/internal/modules/catalog/dto"
+	"khrix/egommerce/internal/modules/catalog/repository/entities"
 )
 
 type ProductMapper interface {

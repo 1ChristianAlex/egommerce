@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 
-	"khrix/egommerce/internal/modules/product/di"
-	"khrix/egommerce/internal/modules/product/dto"
+	"khrix/egommerce/internal/modules/catalog/di"
+	"khrix/egommerce/internal/modules/catalog/dto"
 )
 
 type ProductService struct {

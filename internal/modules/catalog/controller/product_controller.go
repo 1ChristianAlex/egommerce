@@ -5,8 +5,8 @@ import (
 
 	"khrix/egommerce/internal/core/response"
 	"khrix/egommerce/internal/models"
-	"khrix/egommerce/internal/modules/product/di"
-	"khrix/egommerce/internal/modules/product/dto"
+	"khrix/egommerce/internal/modules/catalog/di"
+	"khrix/egommerce/internal/modules/catalog/dto"
 
 	"github.com/gin-gonic/gin"
 )

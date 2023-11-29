@@ -1,7 +1,7 @@
 package di
 
 import (
-	"khrix/egommerce/internal/modules/product/repository/entities"
+	"khrix/egommerce/internal/modules/catalog/repository/entities"
 )
 
 type ProductRepository interface {

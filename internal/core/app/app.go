@@ -8,14 +8,10 @@ import (
 
 	user_auth "khrix/egommerce/internal/core/auth"
 	file_upload "khrix/egommerce/internal/libs/file_upload"
-	category_controller "khrix/egommerce/internal/modules/categories/controller"
-	category_mapper "khrix/egommerce/internal/modules/categories/mapper"
-	category_repository "khrix/egommerce/internal/modules/categories/repository"
-	category_service "khrix/egommerce/internal/modules/categories/service"
-	product_controller "khrix/egommerce/internal/modules/product/controller"
-	product_mapper "khrix/egommerce/internal/modules/product/mapper"
-	product_repository "khrix/egommerce/internal/modules/product/repository"
-	product_service "khrix/egommerce/internal/modules/product/service"
+	product_controller "khrix/egommerce/internal/modules/catalog/controller"
+	product_mapper "khrix/egommerce/internal/modules/catalog/mapper"
+	product_repository "khrix/egommerce/internal/modules/catalog/repository"
+	product_service "khrix/egommerce/internal/modules/catalog/service"
 	user_controller "khrix/egommerce/internal/modules/user/controller"
 	user_repository "khrix/egommerce/internal/modules/user/repository"
 	user_service "khrix/egommerce/internal/modules/user/service"
@@ -54,19 +50,19 @@ func StartServer() {
 	}
 
 	productMapper := product_mapper.NewProductMapper()
-	categoryMapper := category_mapper.NewCategoryMapper()
+	categoryMapper := product_mapper.NewCategoryMapper()
 
 	userR := user_repository.NewUserRepository(database)
 	productR := product_repository.NewProductRepository(database)
 	productImageR := product_repository.NewProductImageRepository(database)
-	categoryRepository := category_repository.NewCategoryRepository(database)
+	categoryRepository := product_repository.NewCategoryRepository(database)
 
 	passwordS := user_service.NewPasswordService()
 	jwtS := user_service.NewJwtService()
 	userS := user_service.NewUserService(userR, passwordS)
 	productImageS := product_service.NewProductImageService(productImageR, productR, file_upload.NewFileUploadManager())
 
-	categoryService := category_service.NewCategoryService(
+	categoryService := product_service.NewCategoryService(
 		categoryRepository,
 		categoryMapper,
 		productR,
@@ -83,7 +79,7 @@ func StartServer() {
 	user_controller.NewUserModule(apiRouter, userS)
 	product_controller.NewModule(apiRouter, productS)
 	product_controller.NewProductImageController(apiRouter, productS, productImageS)
-	category_controller.NewCategoryController(apiRouter, categoryService)
+	product_controller.NewCategoryController(apiRouter, categoryService)
 
 	httpServer.ListenAndServe()
 }

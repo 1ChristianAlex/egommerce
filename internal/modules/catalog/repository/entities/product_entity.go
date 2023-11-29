@@ -1,8 +1,6 @@
 package entities
 
 import (
-	category_entities "khrix/egommerce/internal/modules/categories/repository/entities"
-
 	"gorm.io/gorm"
 )
 
@@ -14,5 +12,5 @@ type Product struct {
 	Quantity      int32   `gorm:"not null;"`
 	DiscountPrice float64 `gorm:"not null;"`
 	ProductImage  []ProductImage
-	Category      []category_entities.Category
+	Category      []*Category `gorm:"many2many:product_category;"`
 }

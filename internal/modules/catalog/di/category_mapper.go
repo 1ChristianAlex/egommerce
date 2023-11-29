@@ -1,8 +1,8 @@
 package di
 
 import (
-	"khrix/egommerce/internal/modules/categories/dto"
-	"khrix/egommerce/internal/modules/categories/repository/entities"
+	"khrix/egommerce/internal/modules/catalog/dto"
+	"khrix/egommerce/internal/modules/catalog/repository/entities"
 )
 
 type CategoryMapper interface {

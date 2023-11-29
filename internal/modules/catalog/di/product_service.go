@@ -3,7 +3,7 @@ package di
 import (
 	"mime/multipart"
 
-	"khrix/egommerce/internal/modules/product/dto"
+	"khrix/egommerce/internal/modules/catalog/dto"
 )
 
 type ProductService interface {

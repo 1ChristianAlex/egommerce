@@ -6,8 +6,8 @@ import (
 	"mime/multipart"
 
 	libDi "khrix/egommerce/internal/libs/file_upload/di"
-	"khrix/egommerce/internal/modules/product/di"
-	"khrix/egommerce/internal/modules/product/repository/entities"
+	"khrix/egommerce/internal/modules/catalog/di"
+	"khrix/egommerce/internal/modules/catalog/repository/entities"
 )
 
 type ProductImageService struct {

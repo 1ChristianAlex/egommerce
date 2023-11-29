@@ -2,8 +2,8 @@ package mapper
 
 import (
 	"khrix/egommerce/internal/core/addons"
-	"khrix/egommerce/internal/modules/categories/dto"
-	"khrix/egommerce/internal/modules/categories/repository/entities"
+	"khrix/egommerce/internal/modules/catalog/dto"
+	"khrix/egommerce/internal/modules/catalog/repository/entities"
 
 	"gorm.io/gorm"
 )
@@ -17,10 +17,10 @@ func NewCategoryMapper() *CategoryMapper {
 func (m CategoryMapper) ToDto(item entities.Category) dto.CategoryOutputDto {
 	var subCategories []dto.CategoryOutputDto
 
-	if len(item.Category) > 0 {
-		subCategories = addons.Map(item.Category, func(item entities.Category) dto.CategoryOutputDto {
-			if len(item.Category) > 0 {
-				return dto.CategoryOutputDto{ID: item.ID, Name: item.Name, SubCategory: addons.Map(item.Category, m.ToDto)}
+	if len(item.SubCategory) > 0 {
+		subCategories = addons.Map(item.SubCategory, func(item entities.Category) dto.CategoryOutputDto {
+			if len(item.SubCategory) > 0 {
+				return dto.CategoryOutputDto{ID: item.ID, Name: item.Name, SubCategory: addons.Map(item.SubCategory, m.ToDto)}
 			}
 
 			return dto.CategoryOutputDto{ID: item.ID, Name: item.Name}
@@ -36,11 +36,11 @@ func (m CategoryMapper) ToEntity(item dto.CategoryOutputDto) entities.Category {
 	if len(item.SubCategory) > 0 {
 		subCategories = addons.Map(item.SubCategory, func(item dto.CategoryOutputDto) entities.Category {
 			if len(item.SubCategory) > 0 {
-				return entities.Category{Model: gorm.Model{ID: item.ID}, Name: item.Name, Category: addons.Map(item.SubCategory, m.ToEntity)}
+				return entities.Category{Model: gorm.Model{ID: item.ID}, Name: item.Name, SubCategory: addons.Map(item.SubCategory, m.ToEntity)}
 			}
 
 			return entities.Category{Model: gorm.Model{ID: item.ID}, Name: item.Name}
 		})
 	}
-	return entities.Category{Model: gorm.Model{ID: item.ID}, Name: item.Name, Category: subCategories}
+	return entities.Category{Model: gorm.Model{ID: item.ID}, Name: item.Name, SubCategory: subCategories}
 }

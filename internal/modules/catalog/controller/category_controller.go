@@ -5,9 +5,8 @@ import (
 
 	"khrix/egommerce/internal/core/response"
 	"khrix/egommerce/internal/models"
-	"khrix/egommerce/internal/modules/categories/di"
-	"khrix/egommerce/internal/modules/categories/dto"
-	product_dto "khrix/egommerce/internal/modules/product/dto"
+	"khrix/egommerce/internal/modules/catalog/di"
+	"khrix/egommerce/internal/modules/catalog/dto"
 
 	"github.com/gin-gonic/gin"
 )
@@ -64,26 +63,26 @@ func (c CategoryController) SetProductCategory(context *gin.Context) {
 	var productCategory dto.SetProductCategoryInputDto
 
 	if err := context.ShouldBindJSON(&productCategory); err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*product_dto.ProductOutputDto]{Result: nil, ErrorMessage: err.Error()})
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.ProductOutputDto]{Result: nil, ErrorMessage: err.Error()})
 		return
 	}
 
-	channel := make(chan models.Resolve[product_dto.ProductOutputDto])
+	channel := make(chan models.Resolve[dto.ProductOutputDto])
 	defer close(channel)
 
 	go func() {
 		productItem, err := c.categoryService.SetProductCategory(productCategory.ProductId, productCategory.CategoryId)
-		channel <- models.Resolve[product_dto.ProductOutputDto]{Result: *productItem, Err: err}
+		channel <- models.Resolve[dto.ProductOutputDto]{Result: *productItem, Err: err}
 	}()
 
 	resolve := <-channel
 
 	if resolve.Err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*product_dto.ProductOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.ProductOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
 		return
 	}
 
-	context.JSON(http.StatusOK, &response.ResponseResult[*product_dto.ProductOutputDto]{
+	context.JSON(http.StatusOK, &response.ResponseResult[*dto.ProductOutputDto]{
 		Result: &resolve.Result,
 	})
 }
