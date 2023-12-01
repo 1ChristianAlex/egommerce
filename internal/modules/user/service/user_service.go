@@ -5,22 +5,23 @@ import (
 
 	"khrix/egommerce/internal/modules/user/di"
 	"khrix/egommerce/internal/modules/user/dto"
-	"khrix/egommerce/internal/modules/user/repository/entities"
 )
 
 type UserService struct {
 	repository      di.UserRepository
 	passwordService di.PasswordService
+	userMapper      di.UserMapper
 }
 
-func NewUserService(repository di.UserRepository, passwordService di.PasswordService) *UserService {
+func NewUserService(repository di.UserRepository, passwordService di.PasswordService, userMapper di.UserMapper) *UserService {
 	return &UserService{
 		repository:      repository,
 		passwordService: passwordService,
+		userMapper:      userMapper,
 	}
 }
 
-func (service UserService) CreateNewUser(userInput *dto.CreateUserInputDto) (newUser *dto.UserOutputDto, error error) {
+func (service UserService) CreateNewUser(userInput *dto.UserInputDto) (newUser *dto.UserOutputDto, error error) {
 	userExist, _ := service.repository.FindByEmail(userInput.Email)
 
 	if userExist != nil {
@@ -33,24 +34,14 @@ func (service UserService) CreateNewUser(userInput *dto.CreateUserInputDto) (new
 		return nil, errors.New("fail on create user password")
 	}
 
-	userModel := entities.User{
-		Username: userInput.Username,
-		Password: hash,
-		Name:     userInput.Name,
-		Email:    userInput.Email,
-		Birthday: userInput.Birthday,
-	}
+	userModel := service.userMapper.ToEntity(*userInput)
+	userModel.Password = hash
+
 	user, err := service.repository.CreateUser(&userModel)
 
-	return &dto.UserOutputDto{
-		Id:        user.ID,
-		Username:  user.Username,
-		Name:      user.Name,
-		Email:     user.Email,
-		Birthday:  user.Birthday,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}, err
+	result := service.userMapper.ToDto(*user)
+
+	return &result, err
 }
 
 func (service UserService) TryLogin(email, password string) (newUser *dto.UserOutputDto, error error) {
@@ -63,13 +54,7 @@ func (service UserService) TryLogin(email, password string) (newUser *dto.UserOu
 		return nil, errors.New("wrong access")
 	}
 
-	return &dto.UserOutputDto{
-		Id:        user.ID,
-		Username:  user.Username,
-		Name:      user.Name,
-		Email:     user.Email,
-		Birthday:  user.Birthday,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}, err
+	result := service.userMapper.ToDto(*user)
+
+	return &result, err
 }

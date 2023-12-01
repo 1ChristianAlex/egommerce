@@ -5,7 +5,7 @@ import (
 )
 
 type UserService interface {
-	CreateNewUser(userModel *dto.CreateUserInputDto) (newUser *dto.UserOutputDto, err error)
+	CreateNewUser(userModel *dto.UserInputDto) (newUser *dto.UserOutputDto, err error)
 	TryLogin(email, password string) (newUser *dto.UserOutputDto, err error)
 }
 

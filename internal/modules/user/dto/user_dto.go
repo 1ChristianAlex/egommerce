@@ -11,7 +11,8 @@ type LoginInputDto struct {
 	Password string `json:"password"  binding:"required"`
 }
 
-type CreateUserInputDto struct {
+type UserInputDto struct {
+	ID       uint      `json:"id" `
 	Username string    `json:"username"  binding:"required"`
 	Password string    `json:"password"  binding:"required"`
 	Name     string    `json:"name"  binding:"required"`
@@ -20,13 +21,11 @@ type CreateUserInputDto struct {
 }
 
 type UserOutputDto struct {
-	Id        uint      `json:"id" `
-	Username  string    `json:"username" `
-	Name      string    `json:"name" `
-	Email     string    `json:"email" `
-	Birthday  time.Time `json:"birthday" `
-	CreatedAt time.Time `json:"createdAt" `
-	UpdatedAt time.Time `json:"updatedAt" `
+	ID       uint      `json:"id" `
+	Username string    `json:"username" `
+	Name     string    `json:"name" `
+	Email    string    `json:"email" `
+	Birthday time.Time `json:"birthday" `
 }
 
 type UserOutputTokenDto struct {

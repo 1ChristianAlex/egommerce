@@ -12,9 +12,16 @@ func ProductMigration(database *gorm.DB) {
 	fmt.Println("Migrating")
 	database.Migrator().CurrentDatabase()
 
-	database.AutoMigrate(&entities.Category{})
-	database.AutoMigrate(&entities.Product{})
-	database.AutoMigrate(&entities.ProductImage{})
+	entitiesList := []interface{}{
+		entities.Category{},
+		entities.Product{},
+		entities.ProductImage{},
+		entities.ProductReview{},
+	}
+
+	for _, v := range entitiesList {
+		database.AutoMigrate(&v)
+	}
 
 	firstCategory := entities.Category{
 		Name: "Test Category",

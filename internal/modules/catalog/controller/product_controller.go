@@ -15,7 +15,7 @@ type ProductController struct {
 	productService di.ProductService
 }
 
-func NewModule(router *gin.RouterGroup, productService di.ProductService) {
+func NewProductController(router *gin.RouterGroup, productService di.ProductService) {
 	controller := ProductController{productService: productService}
 
 	router.POST("/product", controller.CreateNewProductItem)

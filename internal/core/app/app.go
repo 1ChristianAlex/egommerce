@@ -13,6 +13,7 @@ import (
 	product_repository "khrix/egommerce/internal/modules/catalog/repository"
 	product_service "khrix/egommerce/internal/modules/catalog/service"
 	user_controller "khrix/egommerce/internal/modules/user/controller"
+	user_mapper "khrix/egommerce/internal/modules/user/mapper"
 	user_repository "khrix/egommerce/internal/modules/user/repository"
 	user_service "khrix/egommerce/internal/modules/user/service"
 	"khrix/egommerce/migrations"
@@ -51,6 +52,7 @@ func StartServer() {
 
 	categoryMapper := product_mapper.NewCategoryMapper()
 	productMapper := product_mapper.NewProductMapper(categoryMapper)
+	userMapper := user_mapper.NewUserMapper()
 
 	userR := user_repository.NewUserRepository(database)
 	productR := product_repository.NewProductRepository(database)
@@ -59,7 +61,7 @@ func StartServer() {
 
 	passwordS := user_service.NewPasswordService()
 	jwtS := user_service.NewJwtService()
-	userS := user_service.NewUserService(userR, passwordS)
+	userS := user_service.NewUserService(userR, passwordS, userMapper)
 	productImageS := product_service.NewProductImageService(productImageR, productR, file_upload.NewFileUploadManager())
 
 	categoryService := product_service.NewCategoryService(
@@ -75,9 +77,9 @@ func StartServer() {
 
 	apiRouter := router.Group("api", authHelper.JwtMiddleware)
 
-	user_controller.NewAuthModule(&router.RouterGroup, userS, jwtS)
-	user_controller.NewUserModule(apiRouter, userS)
-	product_controller.NewModule(apiRouter, productS)
+	user_controller.NewAuthController(&router.RouterGroup, userS, jwtS)
+	user_controller.NewUserController(apiRouter, userS)
+	product_controller.NewProductController(apiRouter, productS)
 	product_controller.NewProductImageController(apiRouter, productS, productImageS)
 	product_controller.NewCategoryController(apiRouter, categoryService)
 

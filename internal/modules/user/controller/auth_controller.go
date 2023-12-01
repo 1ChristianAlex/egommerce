@@ -16,7 +16,7 @@ type AuthController struct {
 	jwtService  di.JwtService
 }
 
-func NewAuthModule(router *gin.RouterGroup, userServicer di.UserService, jwtService di.JwtService) {
+func NewAuthController(router *gin.RouterGroup, userServicer di.UserService, jwtService di.JwtService) {
 	controller := &AuthController{
 		userService: userServicer,
 		jwtService:  jwtService,
@@ -55,10 +55,19 @@ func (controller *AuthController) DoLogin(context *gin.Context) {
 		return
 	}
 
-	token, errToken := controller.jwtService.NewClains(*resolve.Result)
+	tokenChannel := make(chan models.Resolve[string])
+	defer close(tokenChannel)
 
-	if errToken != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.UserOutputDto]{Result: nil, ErrorMessage: errToken.Error()})
+	go func() {
+		token, errToken := controller.jwtService.NewClains(*resolve.Result)
+
+		tokenChannel <- models.Resolve[string]{Result: token, Err: errToken}
+	}()
+
+	tokenResult := <-tokenChannel
+
+	if tokenResult.Err != nil {
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.UserOutputDto]{Result: nil, ErrorMessage: tokenResult.Err.Error()})
 		return
 	}
 
@@ -67,7 +76,7 @@ func (controller *AuthController) DoLogin(context *gin.Context) {
 			User  *dto.UserOutputDto `json:"user" `
 			Token string             `json:"token" `
 		}{
-			User: resolve.Result, Token: token,
+			User: resolve.Result, Token: tokenResult.Result,
 		},
 	})
 }

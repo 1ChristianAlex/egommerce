@@ -14,7 +14,7 @@ type UserController struct {
 	userService di.UserService
 }
 
-func NewUserModule(router *gin.RouterGroup, userServicer di.UserService) {
+func NewUserController(router *gin.RouterGroup, userServicer di.UserService) {
 	controller := &UserController{
 		userService: userServicer,
 	}
@@ -23,7 +23,7 @@ func NewUserModule(router *gin.RouterGroup, userServicer di.UserService) {
 }
 
 func (controller *UserController) CreateNewUser(context *gin.Context) {
-	var userToCreate dto.CreateUserInputDto
+	var userToCreate dto.UserInputDto
 
 	if err := context.ShouldBindJSON(&userToCreate); err != nil {
 		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.UserOutputDto]{Result: nil, ErrorMessage: err.Error()})
