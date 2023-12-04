@@ -15,8 +15,12 @@ func ProductMigration(database *gorm.DB) {
 	entitiesList := []interface{}{
 		entities.Category{},
 		entities.Product{},
+		entities.ProductFeature{},
+		entities.ProductFeatureItem{},
 		entities.ProductImage{},
 		entities.ProductReview{},
+		entities.ProductFeatureItem{},
+		entities.ProductFeature{},
 	}
 
 	for _, v := range entitiesList {

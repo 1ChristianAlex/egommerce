@@ -53,24 +53,31 @@ func StartServer() {
 	categoryMapper := product_mapper.NewCategoryMapper()
 	productMapper := product_mapper.NewProductMapper(categoryMapper)
 	userMapper := user_mapper.NewUserMapper()
+	featureItemMapper := product_mapper.NewFeatureItemMapper()
+	productFeatureMapper := product_mapper.NewProductFeatureMapper(featureItemMapper)
 
 	userR := user_repository.NewUserRepository(database)
 	productR := product_repository.NewProductRepository(database)
 	productImageR := product_repository.NewProductImageRepository(database)
 	categoryRepository := product_repository.NewCategoryRepository(database)
+	productFeatureRepository := product_repository.NewProductFeatureRepository(database)
 
 	passwordS := user_service.NewPasswordService()
 	jwtS := user_service.NewJwtService()
 	userS := user_service.NewUserService(userR, passwordS, userMapper)
 	productImageS := product_service.NewProductImageService(productImageR, productR, file_upload.NewFileUploadManager())
 
+	productFeatureService := product_service.NewProductFeatureService(productFeatureRepository,
+		productFeatureMapper,
+		featureItemMapper,
+		productMapper,
+	)
 	categoryService := product_service.NewCategoryService(
 		categoryRepository,
 		categoryMapper,
 		productR,
 		productMapper,
 	)
-
 	productS := product_service.NewProductService(productR, productImageR, productMapper)
 
 	authHelper := user_auth.NewAuthHelper(jwtS)
@@ -79,7 +86,7 @@ func StartServer() {
 
 	user_controller.NewAuthController(&router.RouterGroup, userS, jwtS)
 	user_controller.NewUserController(apiRouter, userS)
-	product_controller.NewProductController(apiRouter, productS)
+	product_controller.NewProductController(apiRouter, productS, productFeatureService)
 	product_controller.NewProductImageController(apiRouter, productS, productImageS)
 	product_controller.NewCategoryController(apiRouter, categoryService)
 

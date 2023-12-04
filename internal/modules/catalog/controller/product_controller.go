@@ -12,11 +12,19 @@ import (
 )
 
 type ProductController struct {
-	productService di.ProductService
+	productService        di.ProductService
+	productFeatureService di.ProductFeatureService
 }
 
-func NewProductController(router *gin.RouterGroup, productService di.ProductService) {
-	controller := ProductController{productService: productService}
+func NewProductController(
+	router *gin.RouterGroup,
+	productService di.ProductService,
+	productFeatureService di.ProductFeatureService,
+) {
+	controller := ProductController{
+		productService:        productService,
+		productFeatureService: productFeatureService,
+	}
 
 	router.POST("/product", controller.CreateNewProductItem)
 	router.GET("/product", controller.GetListProducts)
@@ -52,13 +60,24 @@ func (controller ProductController) CreateNewProductItem(context *gin.Context) {
 }
 
 func (controller ProductController) GetListProducts(context *gin.Context) {
+	var query dto.ProductQuery
+
+	if err := context.ShouldBindQuery(&query); err != nil {
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.ProductOutputDto]{Result: nil, ErrorMessage: err.Error()})
+		return
+	}
+
 	channel := make(chan models.Resolve[[]dto.ProductOutputDto])
 	defer close(channel)
 
 	go func() {
-		productResult, errProduct := controller.productService.ListAllProducts()
-
-		channel <- models.Resolve[[]dto.ProductOutputDto]{Result: *productResult, Err: errProduct}
+		if query.FeatureIDS != nil {
+			productResult, errProduct := controller.productFeatureService.FindProductsByFeature(query.FeatureIDS)
+			channel <- models.Resolve[[]dto.ProductOutputDto]{Result: *productResult, Err: errProduct}
+		} else {
+			productResult, errProduct := controller.productService.ListAllProducts()
+			channel <- models.Resolve[[]dto.ProductOutputDto]{Result: *productResult, Err: errProduct}
+		}
 	}()
 
 	resolve := <-channel
