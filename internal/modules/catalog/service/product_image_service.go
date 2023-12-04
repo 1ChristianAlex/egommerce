@@ -66,7 +66,7 @@ func (service ProductImageService) UploadProductImage(file *multipart.FileHeader
 		return errors.New("error on save image")
 	}
 
-	_, saveError := service.productImageRepository.CreateNewImageProduct(&[]entities.ProductImage{{Source: *path, ProductID: productId}})
+	_, saveError := service.productImageRepository.CreateNewImageProduct(&[]entities.ProductImage{{Source: *path, ProductID: &productId}})
 
 	if saveError != nil {
 		return errors.New("error on save image")

@@ -12,7 +12,8 @@ type Product struct {
 	Quantity       int32   `gorm:"not null;"`
 	DiscountPrice  float64 `gorm:"not null;"`
 	ProductImage   []ProductImage
+	ProductReview  []ProductReview
 	ProductFeature []*ProductFeature `gorm:"many2many:product_feature;"`
 	Category       []*Category       `gorm:"many2many:product_category;"`
-	UserID         uint
+	UserID         uint              `gorm:"not null;"`
 }

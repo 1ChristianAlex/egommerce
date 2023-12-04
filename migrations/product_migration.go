@@ -3,6 +3,7 @@ package migrations
 import (
 	"fmt"
 
+	"khrix/egommerce/internal/core/addons"
 	"khrix/egommerce/internal/modules/catalog/repository/entities"
 
 	"gorm.io/gorm"
@@ -13,37 +14,56 @@ func ProductMigration(database *gorm.DB) {
 	database.Migrator().CurrentDatabase()
 
 	entitiesList := []interface{}{
-		entities.Category{},
 		entities.Product{},
-		entities.ProductFeature{},
-		entities.ProductFeatureItem{},
+		entities.Category{},
 		entities.ProductImage{},
 		entities.ProductReview{},
-		entities.ProductFeatureItem{},
 		entities.ProductFeature{},
+		entities.ProductFeatureItem{},
 	}
 
 	for _, v := range entitiesList {
-		database.AutoMigrate(&v)
+		err := database.AutoMigrate(&v)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	colorFeature := entities.ProductFeature{Name: "Color"}
+
+	database.FirstOrCreate(&colorFeature)
+
+	colors := []string{
+		"Red",
+		"Green",
+		"Black",
+	}
+
+	for _, itemName := range colors {
+		database.Create(&entities.ProductFeatureItem{Name: itemName, ProductFeatureID: colorFeature.ID})
 	}
 
 	firstCategory := entities.Category{
 		Name: "Test Category",
 	}
-
 	database.FirstOrCreate(&firstCategory)
 
-	firstCategory.SubCategory = []entities.Category{{Name: "Sub Category", CategoryID: &firstCategory.ID}}
+	for i := 0; i < 10; i++ {
 
-	database.Where(entities.Category{Model: firstCategory.Model}).Updates(&firstCategory)
+		firstCategory.SubCategory = []entities.Category{{Name: fmt.Sprintf("Sub Category %d", i), CategoryID: &firstCategory.ID}}
 
-	database.FirstOrCreate(&entities.Product{
-		Name:          "Product Item Test",
-		Description:   "Description Test",
-		Price:         1245.36,
-		DiscountPrice: 1245.36,
-		Quantity:      154,
-		ProductImage:  []entities.ProductImage{{Source: "https://teste.com.br"}},
-		Category:      []*entities.Category{&firstCategory},
-	})
+		database.Where(entities.Category{Model: firstCategory.Model}).Updates(&firstCategory)
+
+		database.Create(&entities.Product{
+			Name:           fmt.Sprintf("Product Item Test %d", i),
+			Description:    fmt.Sprintf("Description Test %d", i),
+			Price:          1245.36,
+			DiscountPrice:  1245.36,
+			Quantity:       154,
+			ProductImage:   []entities.ProductImage{{Source: "https://teste.com.br"}},
+			Category:       append(addons.Map(firstCategory.SubCategory, func(item entities.Category) *entities.Category { return &item }), &firstCategory),
+			UserID:         1,
+			ProductFeature: []*entities.ProductFeature{&colorFeature},
+		})
+	}
 }

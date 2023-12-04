@@ -11,4 +11,5 @@ type ProductReview struct {
 	Stars        int32  `gorm:"not null;"`
 	ProductImage []ProductImage
 	UserID       uint
+	ProductID    uint
 }
