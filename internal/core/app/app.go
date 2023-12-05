@@ -53,7 +53,7 @@ func StartServer() {
 	featureItemMapper := product_mapper.NewFeatureItemMapper()
 	productFeatureMapper := product_mapper.NewProductFeatureMapper(featureItemMapper)
 	categoryMapper := product_mapper.NewCategoryMapper()
-	productMapper := product_mapper.NewProductMapper(categoryMapper, productFeatureMapper)
+	productMapper := product_mapper.NewProductMapper(categoryMapper, featureItemMapper)
 	userMapper := user_mapper.NewUserMapper()
 
 	userR := user_repository.NewUserRepository(database)

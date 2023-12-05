@@ -30,12 +30,12 @@ func (repo ProductFeatureRepository) CreateFeatureItem(name string, pFeatureId u
 	return newCategory, result.Error
 }
 
-func (repo ProductFeatureRepository) BindProductWithFeature(productId uint, featureId []uint) (*entities.Product, error) {
-	featureList := addons.Map(featureId, func(item uint) *entities.ProductFeature {
-		return &entities.ProductFeature{Model: gorm.Model{ID: item}}
+func (repo ProductFeatureRepository) BindProductWithFeature(productId uint, featureItemId []uint) (*entities.Product, error) {
+	featureList := addons.Map(featureItemId, func(item uint) *entities.ProductFeatureItem {
+		return &entities.ProductFeatureItem{Model: gorm.Model{ID: item}}
 	})
 
-	productWithFeature := &entities.Product{Model: gorm.Model{ID: productId}, ProductFeature: featureList}
+	productWithFeature := &entities.Product{Model: gorm.Model{ID: productId}, ProductFeatureItem: featureList}
 
 	result := repo.database.Where(&entities.Product{Model: productWithFeature.Model}).Updates(productWithFeature)
 
@@ -57,11 +57,11 @@ func (repo ProductFeatureRepository) BindFeatureWithItem(featureId uint, feature
 func (repo ProductFeatureRepository) FindProductsByFeatureItem(featureItemIds []uint) ([]*entities.Product, error) {
 	finded := []*entities.Product{}
 
-	featureItem := addons.Map(featureItemIds, func(itemId uint) *entities.ProductFeatureItem {
-		return &entities.ProductFeatureItem{Model: gorm.Model{ID: itemId}}
-	})
-
-	result := repo.database.Preload(clause.Associations).Where(featureItem).Find(&finded)
+	result := repo.database.Joins(
+		"join product_feature_mm pfm on id = pfm.product_id ",
+	).Where("pfm.product_feature_item_id  in ?", featureItemIds).
+		Preload(clause.Associations).
+		Find(&finded)
 
 	return finded, result.Error
 }

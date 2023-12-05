@@ -51,15 +51,15 @@ func ProductMigration(database *gorm.DB) {
 		database.Where(entities.Category{Model: firstCategory.Model}).Updates(&firstCategory)
 
 		database.Create(&entities.Product{
-			Name:           fmt.Sprintf("Product Item Test %d", i),
-			Description:    fmt.Sprintf("Description Test %d", i),
-			Price:          1245.36,
-			DiscountPrice:  1245.36,
-			Quantity:       154,
-			ProductImage:   []entities.ProductImage{{Source: "E:\\Projects\\egommerce\\asset\\3eb51efc-973a-43e3-b1c2-103361ebb9da.jpg"}},
-			Category:       append(addons.Map(firstCategory.SubCategory, func(item entities.Category) *entities.Category { return &item }), &firstCategory),
-			UserID:         1,
-			ProductFeature: []*entities.ProductFeature{&colorFeature},
+			Name:               fmt.Sprintf("Product Item Test %d", i),
+			Description:        fmt.Sprintf("Description Test %d", i),
+			Price:              1245.36,
+			DiscountPrice:      1245.36,
+			Quantity:           154,
+			ProductImage:       []entities.ProductImage{{Source: "E:\\Projects\\egommerce\\asset\\3eb51efc-973a-43e3-b1c2-103361ebb9da.jpg"}},
+			Category:           append(addons.Map(firstCategory.SubCategory, func(item entities.Category) *entities.Category { return &item }), &firstCategory),
+			UserID:             1,
+			ProductFeatureItem: addons.Map(colorFeature.ProductFeatureItem, func(item entities.ProductFeatureItem) *entities.ProductFeatureItem { return &item }),
 		})
 	}
 
