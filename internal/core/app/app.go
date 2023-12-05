@@ -50,11 +50,11 @@ func StartServer() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	categoryMapper := product_mapper.NewCategoryMapper()
-	productMapper := product_mapper.NewProductMapper(categoryMapper)
-	userMapper := user_mapper.NewUserMapper()
 	featureItemMapper := product_mapper.NewFeatureItemMapper()
 	productFeatureMapper := product_mapper.NewProductFeatureMapper(featureItemMapper)
+	categoryMapper := product_mapper.NewCategoryMapper()
+	productMapper := product_mapper.NewProductMapper(categoryMapper, productFeatureMapper)
+	userMapper := user_mapper.NewUserMapper()
 
 	userR := user_repository.NewUserRepository(database)
 	productR := product_repository.NewProductRepository(database)

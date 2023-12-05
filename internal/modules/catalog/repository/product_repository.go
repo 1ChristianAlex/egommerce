@@ -19,7 +19,7 @@ func NewProductRepository(database *gorm.DB) *ProductRepository {
 }
 
 func (repo ProductRepository) CreateNewProduct(productItem *entities.Product) (*entities.Product, error) {
-	result := repo.database.Create(&productItem).Association(dbhelper.GetEntityTableName(&entities.ProductImage{}))
+	result := repo.database.Create(&productItem).Association(dbhelper.GetReflectName(&entities.ProductImage{}))
 
 	return productItem, result.Error
 }
@@ -27,7 +27,13 @@ func (repo ProductRepository) CreateNewProduct(productItem *entities.Product) (*
 func (repo ProductRepository) ListProducts() (*[]entities.Product, error) {
 	productList := make([]entities.Product, 0)
 
-	result := repo.database.Preload(dbhelper.GetEntityTableName(&entities.ProductImage{})).Preload(dbhelper.GetEntityTableName(&entities.Category{})).Find(&productList)
+	result := repo.database.Preload(
+		dbhelper.GetReflectName(&entities.ProductImage{}),
+	).Preload(
+		dbhelper.GetReflectName(&entities.Category{}),
+	).Preload(
+		dbhelper.GetReflectName(&entities.ProductFeature{}),
+	).Find(&productList)
 
 	return &productList, result.Error
 }

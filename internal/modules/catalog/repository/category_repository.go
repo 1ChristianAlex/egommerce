@@ -14,7 +14,7 @@ type CategoryRepository struct {
 }
 
 func NewCategoryRepository(database *gorm.DB) *CategoryRepository {
-	return &CategoryRepository{database: database, tableName: dbhelper.GetEntityTableName(&entities.Category{})}
+	return &CategoryRepository{database: database, tableName: dbhelper.GetReflectName(&entities.Category{})}
 }
 
 func (repo CategoryRepository) CreateCategory(name string) (*entities.Category, error) {

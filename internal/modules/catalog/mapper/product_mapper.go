@@ -9,11 +9,16 @@ import (
 
 type ProductMapper struct {
 	categoryMapper di.CategoryMapper
+	featureMapper  di.ProductFeatureMapper
 }
 
-func NewProductMapper(categoryMapper di.CategoryMapper) *ProductMapper {
+func NewProductMapper(
+	categoryMapper di.CategoryMapper,
+	featureMapper di.ProductFeatureMapper,
+) *ProductMapper {
 	return &ProductMapper{
 		categoryMapper: categoryMapper,
+		featureMapper:  featureMapper,
 	}
 }
 
@@ -27,6 +32,9 @@ func (m ProductMapper) ToDto(item entities.Product) dto.ProductOutputDto {
 		Quantity:      item.Quantity,
 		Images:        addons.Map(item.ProductImage, func(image entities.ProductImage) string { return image.Source }),
 		Category:      addons.Map(item.Category, func(image *entities.Category) dto.CategoryOutputDto { return m.categoryMapper.ToDto(*image) }),
+		Feature: addons.Map(item.ProductFeature, func(item *entities.ProductFeature) dto.ProductFeatureOutputDto {
+			return *m.featureMapper.ToDto(*item)
+		}),
 	}
 }
 

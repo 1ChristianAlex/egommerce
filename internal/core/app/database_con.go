@@ -6,6 +6,7 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 func ConnectDatabase() *gorm.DB {
@@ -17,7 +18,9 @@ func ConnectDatabase() *gorm.DB {
 		os.Getenv("MYSQL_DATABASE"),
 	)
 
-	db, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		panic(err)
 	}

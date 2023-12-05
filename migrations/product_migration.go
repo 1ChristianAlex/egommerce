@@ -29,23 +29,19 @@ func ProductMigration(database *gorm.DB) {
 		}
 	}
 
-	colorFeature := entities.ProductFeature{Name: "Color"}
+	colorFeature := entities.ProductFeature{Name: "Color", ProductFeatureItem: []entities.ProductFeatureItem{
+		{Name: "Red"},
+		{Name: "Blue"},
+		{Name: "Yellow"},
+		{Name: "Black"},
+	}}
 
 	database.FirstOrCreate(&colorFeature)
-
-	colors := []string{
-		"Red",
-		"Green",
-		"Black",
-	}
-
-	for _, itemName := range colors {
-		database.Create(&entities.ProductFeatureItem{Name: itemName, ProductFeatureID: colorFeature.ID})
-	}
 
 	firstCategory := entities.Category{
 		Name: "Test Category",
 	}
+
 	database.FirstOrCreate(&firstCategory)
 
 	for i := 0; i < 10; i++ {
@@ -60,10 +56,25 @@ func ProductMigration(database *gorm.DB) {
 			Price:          1245.36,
 			DiscountPrice:  1245.36,
 			Quantity:       154,
-			ProductImage:   []entities.ProductImage{{Source: "https://teste.com.br"}},
+			ProductImage:   []entities.ProductImage{{Source: "E:\\Projects\\egommerce\\asset\\3eb51efc-973a-43e3-b1c2-103361ebb9da.jpg"}},
 			Category:       append(addons.Map(firstCategory.SubCategory, func(item entities.Category) *entities.Category { return &item }), &firstCategory),
 			UserID:         1,
 			ProductFeature: []*entities.ProductFeature{&colorFeature},
 		})
+	}
+
+	for i := 0; i < 10; i++ {
+		randomProduct := entities.Product{}
+		database.First(&randomProduct)
+
+		randomProduct.ProductReview = append(randomProduct.ProductReview, entities.ProductReview{
+			Title:        "Test Review",
+			Content:      "Optimizer hints allow to control the query optimizer to choose a certain query execution plan, GORM supports it with gorm.io/hints, e.g:",
+			Stars:        4,
+			UserID:       1,
+			ProductImage: []entities.ProductImage{{Source: "E:\\Projects\\egommerce\\asset\\3eb51efc-973a-43e3-b1c2-103361ebb9da.jpg"}},
+		})
+
+		database.Where(&entities.Product{Model: randomProduct.Model}).Updates(&randomProduct)
 	}
 }
