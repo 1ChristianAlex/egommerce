@@ -3,8 +3,10 @@ package service
 import (
 	"errors"
 
+	"khrix/egommerce/internal/core/addons"
 	"khrix/egommerce/internal/modules/catalog/di"
 	"khrix/egommerce/internal/modules/catalog/dto"
+	"khrix/egommerce/internal/modules/catalog/repository/entities"
 )
 
 type ProductService struct {
@@ -38,18 +40,20 @@ func (service ProductService) CreateNewProduct(productItem dto.ProductInputDto) 
 	return mapped, nil
 }
 
-func (service ProductService) ListAllProducts() (*[]dto.ProductOutputDto, error) {
+func (service ProductService) ListProducts(name *string) (*[]dto.ProductOutputDto, error) {
+	if name != nil {
+		return service.FindByName(*name)
+	}
+
 	productList, errList := service.productRepository.ListProducts()
 
 	if errList != nil {
 		return nil, errors.New("error on list product")
 	}
 
-	productOutputList := make([]dto.ProductOutputDto, len(*productList))
-
-	for productIndex, produtItem := range *productList {
-		productOutputList[productIndex] = *service.productMapper.ToDto(produtItem)
-	}
+	productOutputList := addons.Map(*productList, func(produtItem entities.Product) dto.ProductOutputDto {
+		return *service.productMapper.ToDto(produtItem)
+	})
 
 	return &productOutputList, nil
 }
@@ -64,4 +68,18 @@ func (service ProductService) FindById(productId uint) (*dto.ProductOutputDto, e
 	mapped := service.productMapper.ToDto(*productItem)
 
 	return mapped, nil
+}
+
+func (service ProductService) FindByName(name string) (*[]dto.ProductOutputDto, error) {
+	productList, errList := service.productRepository.FindByName(name)
+
+	if errList != nil {
+		return nil, errors.New("error on list product")
+	}
+
+	productOutputList := addons.Map(*productList, func(produtItem entities.Product) dto.ProductOutputDto {
+		return *service.productMapper.ToDto(produtItem)
+	})
+
+	return &productOutputList, nil
 }

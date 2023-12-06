@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	dbhelper "khrix/egommerce/internal/libs/db_helper"
 	"khrix/egommerce/internal/modules/catalog/repository/entities"
 
@@ -56,4 +58,12 @@ func (repo ProductRepository) FindById(productId uint) (*entities.Product, error
 	result := repo.database.Preload(clause.Associations).Where(&entities.Product{Model: gorm.Model{ID: productId}}).Find(&finded)
 
 	return &finded, result.Error
+}
+
+func (repo ProductRepository) FindByName(productName string) (*[]entities.Product, error) {
+	products := []entities.Product{}
+
+	result := repo.database.Preload(clause.Associations).Where("name LIKE ?", fmt.Sprintf("%%%s%%", productName)).Find(&products)
+
+	return &products, result.Error
 }

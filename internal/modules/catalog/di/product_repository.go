@@ -10,6 +10,7 @@ type ProductRepository interface {
 	UpdateProductItem(productItem *entities.Product) (*entities.Product, error)
 	DeleteProductItem(productId uint) error
 	FindById(productId uint) (*entities.Product, error)
+	FindByName(productName string) (*[]entities.Product, error)
 }
 
 type ProductImageRepository interface {

@@ -27,6 +27,7 @@ type ProductFeatureItemOutputDto struct {
 
 type ProductQuery struct {
 	FeatureIDS []int32 `form:"features"`
+	Search     *string `form:"search"`
 }
 
 type ProductFeatureOutputDto struct {
