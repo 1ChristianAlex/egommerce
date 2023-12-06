@@ -6,6 +6,6 @@ import (
 )
 
 type CategoryMapper interface {
-	ToDto(item entities.Category) dto.CategoryOutputDto
-	ToEntity(item dto.CategoryOutputDto) entities.Category
+	ToDto(item entities.Category) *dto.CategoryOutputDto
+	ToEntity(item dto.CategoryOutputDto) *entities.Category
 }

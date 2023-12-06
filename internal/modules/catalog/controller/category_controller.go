@@ -24,6 +24,8 @@ func NewCategoryController(router *gin.RouterGroup, categoryService di.CategoryS
 
 	routerGroup.POST("/create", controller.CreateNewCategory)
 	routerGroup.POST("/set-product", controller.SetProductCategory)
+	routerGroup.GET("/", controller.ListAllCategories)
+	routerGroup.GET("/:categoryId", controller.ListProductsFromCategory)
 }
 
 func (c CategoryController) CreateNewCategory(context *gin.Context) {
@@ -84,5 +86,54 @@ func (c CategoryController) SetProductCategory(context *gin.Context) {
 
 	context.JSON(http.StatusOK, &response.ResponseResult[*dto.ProductOutputDto]{
 		Result: &resolve.Result,
+	})
+}
+
+func (c CategoryController) ListAllCategories(context *gin.Context) {
+	channel := make(chan models.Resolve[[]dto.CategoryOutputDto])
+	defer close(channel)
+
+	go func() {
+		categories, err := c.categoryService.ListAllCategories()
+		channel <- models.Resolve[[]dto.CategoryOutputDto]{Result: *categories, Err: err}
+	}()
+
+	resolve := <-channel
+
+	if resolve.Err != nil {
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*[]dto.CategoryOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, &response.ResponseResult[*[]dto.CategoryOutputDto]{
+		Result: &resolve.Result,
+	})
+}
+
+func (c CategoryController) ListProductsFromCategory(context *gin.Context) {
+	var query dto.GetProductsCategory
+
+	if err := context.ShouldBindUri(&query); err != nil {
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*[]dto.ProductOutputDto]{Result: nil, ErrorMessage: err.Error()})
+		return
+	}
+
+	channel := make(chan models.Resolve[*[]dto.ProductOutputDto])
+	defer close(channel)
+
+	go func() {
+		categories, err := c.categoryService.ProductsFromCategory(query.CategoryId)
+		channel <- models.Resolve[*[]dto.ProductOutputDto]{Result: categories, Err: err}
+	}()
+
+	resolve := <-channel
+
+	if resolve.Err != nil {
+		context.JSON(http.StatusBadRequest, &response.ResponseResult[*[]dto.ProductOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, &response.ResponseResult[*[]dto.ProductOutputDto]{
+		Result: resolve.Result,
 	})
 }

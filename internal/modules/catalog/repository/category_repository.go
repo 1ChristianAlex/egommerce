@@ -1,20 +1,20 @@
 package repository
 
 import (
+	"fmt"
+
 	dbhelper "khrix/egommerce/internal/libs/db_helper"
 	"khrix/egommerce/internal/modules/catalog/repository/entities"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type CategoryRepository struct {
-	database  *gorm.DB
-	tableName string
+	database *gorm.DB
 }
 
 func NewCategoryRepository(database *gorm.DB) *CategoryRepository {
-	return &CategoryRepository{database: database, tableName: dbhelper.GetReflectName(&entities.Category{})}
+	return &CategoryRepository{database: database}
 }
 
 func (repo CategoryRepository) CreateCategory(name string) (*entities.Category, error) {
@@ -39,18 +39,31 @@ func (repo CategoryRepository) SetProductCategory(productId, categoryId uint) (*
 	return newProductCategory, result.Error
 }
 
-func (r CategoryRepository) ListProductsFromCategory(categoryId uint) (*[]entities.Product, error) {
-	var productList []entities.Product
+func (r CategoryRepository) ListProductsFromCategory(categoryId uint) (*entities.Category, error) {
+	var categ entities.Category
 
-	result := r.database.Preload(clause.Associations).Where(&entities.Product{Category: []*entities.Category{{Model: gorm.Model{ID: categoryId}}}}).Find(&productList)
+	productRelations := []string{
+		dbhelper.GetReflectName(&entities.ProductImage{}),
+		dbhelper.GetReflectName(&entities.ProductReview{}),
+		dbhelper.GetReflectName(&entities.ProductFeatureItem{}),
+		dbhelper.GetReflectName(&entities.Category{}),
+	}
 
-	return &productList, result.Error
+	tx := r.database.Preload(dbhelper.GetReflectName(&entities.Product{}))
+
+	for _, tableName := range productRelations {
+		tx.Preload(dbhelper.NestedTableName(dbhelper.GetReflectName(&entities.Product{}), tableName))
+	}
+
+	result := tx.Find(&categ, categoryId)
+
+	return &categ, result.Error
 }
 
 func (r CategoryRepository) ListAllCategories() (*[]entities.Category, error) {
 	var categoryList []entities.Category
 
-	result := r.database.Preload(r.tableName).Find(&categoryList)
+	result := r.database.Preload(fmt.Sprintf("Sub%s", dbhelper.GetReflectName(&entities.Category{}))).Find(&categoryList)
 
 	return &categoryList, result.Error
 }

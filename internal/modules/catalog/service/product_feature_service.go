@@ -70,7 +70,7 @@ func (s ProductFeatureService) FindProductsByFeature(featureIds []int32) (*[]dto
 		return nil, errors.New("error on finding products by feature")
 	}
 
-	result := addons.Map(productList, func(item *entities.Product) dto.ProductOutputDto { return s.productMapper.ToDto(*item) })
+	result := addons.Map(productList, func(item *entities.Product) dto.ProductOutputDto { return *s.productMapper.ToDto(*item) })
 
 	return &result, nil
 }

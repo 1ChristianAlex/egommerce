@@ -11,6 +11,10 @@ type CreateCategoryInputDto struct {
 	CategoryId uint   `json:"categoryId"`
 }
 
+type GetProductsCategory struct {
+	CategoryId int32 `uri:"categoryId" binding:"required"`
+}
+
 type SetProductCategoryInputDto struct {
 	ProductId  uint `json:"productId" binding:"required"`
 	CategoryId uint `json:"categoryId" binding:"required"`

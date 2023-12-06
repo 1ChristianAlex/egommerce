@@ -22,8 +22,8 @@ func NewProductMapper(
 	}
 }
 
-func (m ProductMapper) ToDto(item entities.Product) dto.ProductOutputDto {
-	return dto.ProductOutputDto{
+func (m ProductMapper) ToDto(item entities.Product) *dto.ProductOutputDto {
+	return &dto.ProductOutputDto{
 		ID:            item.ID,
 		Name:          item.Name,
 		Description:   item.Description,
@@ -31,7 +31,9 @@ func (m ProductMapper) ToDto(item entities.Product) dto.ProductOutputDto {
 		DiscountPrice: item.DiscountPrice,
 		Quantity:      item.Quantity,
 		Images:        addons.Map(item.ProductImage, func(image entities.ProductImage) string { return image.Source }),
-		Category:      addons.Map(item.Category, func(image *entities.Category) dto.CategoryOutputDto { return m.categoryMapper.ToDto(*image) }),
+		Category: addons.Map(item.Category, func(image *entities.Category) dto.CategoryOutputDto {
+			return *m.categoryMapper.ToDto(*image)
+		}),
 		Feature: addons.Map(item.ProductFeatureItem, func(item *entities.ProductFeatureItem) dto.ProductFeatureItemOutputDto {
 			return *m.featureMapper.ToDto(*item)
 		}),

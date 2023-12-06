@@ -35,7 +35,7 @@ func (service ProductService) CreateNewProduct(productItem dto.ProductInputDto) 
 
 	mapped := service.productMapper.ToDto(*newProduct)
 
-	return &mapped, nil
+	return mapped, nil
 }
 
 func (service ProductService) ListAllProducts() (*[]dto.ProductOutputDto, error) {
@@ -48,7 +48,7 @@ func (service ProductService) ListAllProducts() (*[]dto.ProductOutputDto, error)
 	productOutputList := make([]dto.ProductOutputDto, len(*productList))
 
 	for productIndex, produtItem := range *productList {
-		productOutputList[productIndex] = service.productMapper.ToDto(produtItem)
+		productOutputList[productIndex] = *service.productMapper.ToDto(produtItem)
 	}
 
 	return &productOutputList, nil
@@ -63,5 +63,5 @@ func (service ProductService) FindById(productId uint) (*dto.ProductOutputDto, e
 
 	mapped := service.productMapper.ToDto(*productItem)
 
-	return &mapped, nil
+	return mapped, nil
 }

@@ -6,6 +6,6 @@ import (
 )
 
 type ProductMapper interface {
-	ToDto(item entities.Product) dto.ProductOutputDto
+	ToDto(item entities.Product) *dto.ProductOutputDto
 	ToEntity(item dto.ProductInputDto) entities.Product
 }

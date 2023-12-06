@@ -1,6 +1,7 @@
 package service
 
 import (
+	"khrix/egommerce/internal/core/addons"
 	"khrix/egommerce/internal/modules/catalog/di"
 	"khrix/egommerce/internal/modules/catalog/dto"
 	"khrix/egommerce/internal/modules/catalog/repository/entities"
@@ -37,7 +38,7 @@ func (c CategoryService) CreateCategory(name string) (*dto.CategoryOutputDto, er
 
 	result := c.categoryMapper.ToDto(*newCategory)
 
-	return &result, nil
+	return result, nil
 }
 
 func (c CategoryService) CreateSubCategory(name string, categoryId uint) (*dto.CategoryOutputDto, error) {
@@ -48,7 +49,7 @@ func (c CategoryService) CreateSubCategory(name string, categoryId uint) (*dto.C
 
 	result := c.categoryMapper.ToDto(*newSubCategory)
 
-	return &result, nil
+	return result, nil
 }
 
 func (c CategoryService) SetProductCategory(productId, categoryId uint) (*dto.ProductOutputDto, error) {
@@ -66,7 +67,27 @@ func (c CategoryService) SetProductCategory(productId, categoryId uint) (*dto.Pr
 		return nil, err
 	}
 
-	result := c.productMapper.ToDto(*productUpdate)
+	return c.productMapper.ToDto(*productUpdate), nil
+}
 
-	return &result, nil
+func (c CategoryService) ListAllCategories() (*[]dto.CategoryOutputDto, error) {
+	categories, err := c.categoryRepository.ListAllCategories()
+	if err != nil {
+		return nil, err
+	}
+
+	result := addons.Map(*categories, func(item entities.Category) dto.CategoryOutputDto { return *c.categoryMapper.ToDto(item) })
+
+	return &result, err
+}
+
+func (c CategoryService) ProductsFromCategory(cagoryId int32) (*[]dto.ProductOutputDto, error) {
+	category, err := c.categoryRepository.ListProductsFromCategory(uint(cagoryId))
+	if err != nil {
+		return nil, err
+	}
+
+	result := addons.Map(category.Product, func(item *entities.Product) dto.ProductOutputDto { return *c.productMapper.ToDto(*item) })
+
+	return &result, err
 }
