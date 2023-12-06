@@ -71,13 +71,8 @@ func (controller ProductController) GetListProducts(context *gin.Context) {
 	defer close(channel)
 
 	go func() {
-		if query.FeatureIDS != nil {
-			productResult, errProduct := controller.productFeatureService.FindProductsByFeature(query.FeatureIDS)
-			channel <- models.Resolve[[]dto.ProductOutputDto]{Result: *productResult, Err: errProduct}
-		} else {
-			productResult, errProduct := controller.productService.ListProducts(query.Search)
-			channel <- models.Resolve[[]dto.ProductOutputDto]{Result: *productResult, Err: errProduct}
-		}
+		productResult, errProduct := controller.productService.ListProducts(query.Search, query.CategoryIDS, query.FeatureIDS)
+		channel <- models.Resolve[[]dto.ProductOutputDto]{Result: *productResult, Err: errProduct}
 	}()
 
 	resolve := <-channel

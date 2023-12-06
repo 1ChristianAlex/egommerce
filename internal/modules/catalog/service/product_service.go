@@ -11,12 +11,14 @@ import (
 
 type ProductService struct {
 	productRepository      di.ProductRepository
+	searchRepository       di.SearchRepository
 	productImageRepository di.ProductImageRepository
 	productMapper          di.ProductMapper
 }
 
 func NewProductService(
 	productRepository di.ProductRepository,
+	searchRepository di.SearchRepository,
 	productImageRepository di.ProductImageRepository,
 	productMapper di.ProductMapper,
 ) *ProductService {
@@ -24,6 +26,7 @@ func NewProductService(
 		productRepository:      productRepository,
 		productImageRepository: productImageRepository,
 		productMapper:          productMapper,
+		searchRepository:       searchRepository,
 	}
 }
 
@@ -40,12 +43,8 @@ func (service ProductService) CreateNewProduct(productItem dto.ProductInputDto) 
 	return mapped, nil
 }
 
-func (service ProductService) ListProducts(name *string) (*[]dto.ProductOutputDto, error) {
-	if name != nil {
-		return service.FindByName(*name)
-	}
-
-	productList, errList := service.productRepository.ListProducts()
+func (service ProductService) ListProducts(searchValue *string, categories, features *[]int32) (*[]dto.ProductOutputDto, error) {
+	productList, errList := service.searchRepository.Search(searchValue, categories, features)
 
 	if errList != nil {
 		return nil, errors.New("error on list product")
@@ -68,18 +67,4 @@ func (service ProductService) FindById(productId uint) (*dto.ProductOutputDto, e
 	mapped := service.productMapper.ToDto(*productItem)
 
 	return mapped, nil
-}
-
-func (service ProductService) FindByName(name string) (*[]dto.ProductOutputDto, error) {
-	productList, errList := service.productRepository.FindByName(name)
-
-	if errList != nil {
-		return nil, errors.New("error on list product")
-	}
-
-	productOutputList := addons.Map(*productList, func(produtItem entities.Product) dto.ProductOutputDto {
-		return *service.productMapper.ToDto(produtItem)
-	})
-
-	return &productOutputList, nil
 }

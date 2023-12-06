@@ -8,9 +8,8 @@ import (
 
 type ProductService interface {
 	CreateNewProduct(productItem dto.ProductInputDto) (*dto.ProductOutputDto, error)
-	ListProducts(name *string) (*[]dto.ProductOutputDto, error)
+	ListProducts(searchValue *string, categories, features *[]int32) (*[]dto.ProductOutputDto, error)
 	FindById(productId uint) (*dto.ProductOutputDto, error)
-	FindByName(name string) (*[]dto.ProductOutputDto, error)
 }
 
 type ProductImageService interface {

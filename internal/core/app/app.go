@@ -61,6 +61,7 @@ func StartServer() {
 	productImageR := product_repository.NewProductImageRepository(database)
 	categoryRepository := product_repository.NewCategoryRepository(database)
 	productFeatureRepository := product_repository.NewProductFeatureRepository(database)
+	productSearchRepository := product_repository.NewSearchRepository(database)
 
 	passwordS := user_service.NewPasswordService()
 	jwtS := user_service.NewJwtService()
@@ -78,7 +79,7 @@ func StartServer() {
 		productR,
 		productMapper,
 	)
-	productS := product_service.NewProductService(productR, productImageR, productMapper)
+	productS := product_service.NewProductService(productR, productSearchRepository, productImageR, productMapper)
 
 	authHelper := user_auth.NewAuthHelper(jwtS)
 
