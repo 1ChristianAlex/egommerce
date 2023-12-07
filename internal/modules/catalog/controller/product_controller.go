@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"net/http"
-
 	"khrix/egommerce/internal/core/response"
 	"khrix/egommerce/internal/models"
 	"khrix/egommerce/internal/modules/catalog/di"
@@ -33,56 +31,18 @@ func NewProductController(
 func (controller ProductController) CreateNewProductItem(context *gin.Context) {
 	var productBody dto.ProductInputDto
 
-	if err := context.ShouldBindJSON(&productBody); err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.ProductInputDto]{Result: nil, ErrorMessage: err.Error()})
-		return
-	}
-
-	channel := make(chan models.Resolve[dto.ProductOutputDto])
-	defer close(channel)
-
-	go func() {
+	response.ControllerInputMethod(context, productBody, context.ShouldBindJSON, func(channel chan models.Resolve[dto.ProductOutputDto]) {
 		productResult, errProduct := controller.productService.CreateNewProduct(productBody)
 
 		channel <- models.Resolve[dto.ProductOutputDto]{Result: *productResult, Err: errProduct}
-	}()
-
-	resolve := <-channel
-
-	if resolve.Err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.ProductOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
-		return
-	}
-
-	context.JSON(http.StatusOK, &response.ResponseResult[*dto.ProductOutputDto]{
-		Result: &resolve.Result,
 	})
 }
 
 func (controller ProductController) GetListProducts(context *gin.Context) {
 	var query dto.ProductQuery
 
-	if err := context.ShouldBindQuery(&query); err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.ProductOutputDto]{Result: nil, ErrorMessage: err.Error()})
-		return
-	}
-
-	channel := make(chan models.Resolve[[]dto.ProductOutputDto])
-	defer close(channel)
-
-	go func() {
+	response.ControllerInputMethod(context, query, context.ShouldBindQuery, func(channel chan models.Resolve[[]dto.ProductOutputDto]) {
 		productResult, errProduct := controller.productService.ListProducts(query.Search, query.CategoryIDS, query.FeatureIDS)
 		channel <- models.Resolve[[]dto.ProductOutputDto]{Result: *productResult, Err: errProduct}
-	}()
-
-	resolve := <-channel
-
-	if resolve.Err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*[]dto.ProductOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
-		return
-	}
-
-	context.JSON(http.StatusOK, &response.ResponseResult[*[]dto.ProductOutputDto]{
-		Result: &resolve.Result,
 	})
 }

@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"net/http"
-
 	"khrix/egommerce/internal/core/response"
 	"khrix/egommerce/internal/models"
 	"khrix/egommerce/internal/modules/catalog/di"
@@ -31,15 +29,7 @@ func NewCategoryController(router *gin.RouterGroup, categoryService di.CategoryS
 func (c CategoryController) CreateNewCategory(context *gin.Context) {
 	var categoryBody dto.CreateCategoryInputDto
 
-	if err := context.ShouldBindJSON(&categoryBody); err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.CategoryOutputDto]{Result: nil, ErrorMessage: err.Error()})
-		return
-	}
-
-	channel := make(chan models.Resolve[dto.CategoryOutputDto])
-	defer close(channel)
-
-	go func() {
+	response.ControllerInputMethod(context, categoryBody, context.ShouldBindJSON, func(channel chan models.Resolve[dto.CategoryOutputDto]) {
 		if categoryBody.CategoryId == 0 {
 			newCategory, err := c.categoryService.CreateCategory(categoryBody.Name)
 			channel <- models.Resolve[dto.CategoryOutputDto]{Result: *newCategory, Err: err}
@@ -47,93 +37,30 @@ func (c CategoryController) CreateNewCategory(context *gin.Context) {
 			newCategory, err := c.categoryService.CreateSubCategory(categoryBody.Name, categoryBody.CategoryId)
 			channel <- models.Resolve[dto.CategoryOutputDto]{Result: *newCategory, Err: err}
 		}
-	}()
-
-	resolve := <-channel
-
-	if resolve.Err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.CategoryOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
-		return
-	}
-
-	context.JSON(http.StatusOK, &response.ResponseResult[*dto.CategoryOutputDto]{
-		Result: &resolve.Result,
 	})
 }
 
 func (c CategoryController) SetProductCategory(context *gin.Context) {
 	var productCategory dto.SetProductCategoryInputDto
 
-	if err := context.ShouldBindJSON(&productCategory); err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.ProductOutputDto]{Result: nil, ErrorMessage: err.Error()})
-		return
-	}
-
-	channel := make(chan models.Resolve[dto.ProductOutputDto])
-	defer close(channel)
-
-	go func() {
+	response.ControllerInputMethod(context, productCategory, context.ShouldBindJSON, func(channel chan models.Resolve[dto.ProductOutputDto]) {
 		productItem, err := c.categoryService.SetProductCategory(productCategory.ProductId, productCategory.CategoryId)
 		channel <- models.Resolve[dto.ProductOutputDto]{Result: *productItem, Err: err}
-	}()
-
-	resolve := <-channel
-
-	if resolve.Err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*dto.ProductOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
-		return
-	}
-
-	context.JSON(http.StatusOK, &response.ResponseResult[*dto.ProductOutputDto]{
-		Result: &resolve.Result,
 	})
 }
 
 func (c CategoryController) ListAllCategories(context *gin.Context) {
-	channel := make(chan models.Resolve[[]dto.CategoryOutputDto])
-	defer close(channel)
-
-	go func() {
+	response.ControllerBaseMethod(context, func(channel chan models.Resolve[[]dto.CategoryOutputDto]) {
 		categories, err := c.categoryService.ListAllCategories()
 		channel <- models.Resolve[[]dto.CategoryOutputDto]{Result: *categories, Err: err}
-	}()
-
-	resolve := <-channel
-
-	if resolve.Err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*[]dto.CategoryOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
-		return
-	}
-
-	context.JSON(http.StatusOK, &response.ResponseResult[*[]dto.CategoryOutputDto]{
-		Result: &resolve.Result,
 	})
 }
 
 func (c CategoryController) ListProductsFromCategory(context *gin.Context) {
 	var query dto.GetProductsCategory
 
-	if err := context.ShouldBindUri(&query); err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*[]dto.ProductOutputDto]{Result: nil, ErrorMessage: err.Error()})
-		return
-	}
-
-	channel := make(chan models.Resolve[*[]dto.ProductOutputDto])
-	defer close(channel)
-
-	go func() {
+	response.ControllerInputMethod(context, query, context.ShouldBindUri, func(channel chan models.Resolve[*[]dto.ProductOutputDto]) {
 		categories, err := c.categoryService.ProductsFromCategory(query.CategoryId)
 		channel <- models.Resolve[*[]dto.ProductOutputDto]{Result: categories, Err: err}
-	}()
-
-	resolve := <-channel
-
-	if resolve.Err != nil {
-		context.JSON(http.StatusBadRequest, &response.ResponseResult[*[]dto.ProductOutputDto]{Result: nil, ErrorMessage: resolve.Err.Error()})
-		return
-	}
-
-	context.JSON(http.StatusOK, &response.ResponseResult[*[]dto.ProductOutputDto]{
-		Result: resolve.Result,
 	})
 }
