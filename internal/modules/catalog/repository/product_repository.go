@@ -21,7 +21,7 @@ func NewProductRepository(database *gorm.DB) *ProductRepository {
 }
 
 func (repo ProductRepository) CreateNewProduct(productItem *entities.Product) (*entities.Product, error) {
-	result := repo.database.Create(&productItem).Association(dbhelper.GetReflectName(&entities.ProductImage{}))
+	result := repo.database.Create(&productItem).Find(&productItem)
 
 	return productItem, result.Error
 }

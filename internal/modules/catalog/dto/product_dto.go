@@ -18,4 +18,5 @@ type ProductOutputDto struct {
 	Images        []string                      `json:"images"  binding:"required"`
 	Category      []CategoryOutputDto           `json:"category"  binding:"required"`
 	Feature       []ProductFeatureItemOutputDto `json:"feature"  binding:"required"`
+	UserId        int32                         `json:"userId"  binding:"required"`
 }

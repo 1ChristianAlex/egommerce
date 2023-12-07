@@ -29,7 +29,7 @@ func NewProductFeatureController(router *gin.RouterGroup, productFeatureService 
 func (c ProductFeatureController) CreateProductFeature(context *gin.Context) {
 	var body dto.CreateProductFeatureInputDto
 
-	response.ControllerInputMethod(context, body, context.ShouldBindJSON, func(channel chan models.Resolve[dto.ProductFeatureOutputDto]) {
+	response.ControllerInputMethod(context, &body, context.ShouldBindJSON, func(channel chan models.Resolve[dto.ProductFeatureOutputDto]) {
 		featureResult, errProduct := c.productFeatureService.CreateProductFeature(body.Name)
 
 		channel <- models.Resolve[dto.ProductFeatureOutputDto]{Result: *featureResult, Err: errProduct}
@@ -39,7 +39,7 @@ func (c ProductFeatureController) CreateProductFeature(context *gin.Context) {
 func (c ProductFeatureController) CreateFeatureItem(context *gin.Context) {
 	var body dto.CreateFeatureItemInputDto
 
-	response.ControllerInputMethod(context, body, context.ShouldBindJSON, func(channel chan models.Resolve[dto.ProductFeatureItemOutputDto]) {
+	response.ControllerInputMethod(context, &body, context.ShouldBindJSON, func(channel chan models.Resolve[dto.ProductFeatureItemOutputDto]) {
 		productResult, errProduct := c.productFeatureService.CreateProductFeatureItem(body.Name, int32(body.ProductFeatureID))
 
 		channel <- models.Resolve[dto.ProductFeatureItemOutputDto]{Result: *productResult, Err: errProduct}

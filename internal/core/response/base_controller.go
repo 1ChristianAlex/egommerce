@@ -8,8 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ControllerInputMethod[Output interface{}](context *gin.Context, input interface{}, binder func(obj any) error, goFunciton func(channel chan models.Resolve[Output])) {
-	if err := binder(&input); err != nil {
+func ControllerInputMethod[Input interface{}, Output interface{}](
+	context *gin.Context,
+	input *Input,
+	binder func(obj any) error,
+	goFunciton func(channel chan models.Resolve[Output]),
+) {
+	if err := binder(input); err != nil {
 		context.JSON(http.StatusBadRequest, &ResponseResult[*Output]{Result: nil, ErrorMessage: err.Error()})
 		return
 	}

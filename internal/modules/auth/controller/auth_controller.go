@@ -5,18 +5,19 @@ import (
 
 	"khrix/egommerce/internal/core/response"
 	"khrix/egommerce/internal/models"
-	"khrix/egommerce/internal/modules/user/di"
+	"khrix/egommerce/internal/modules/auth/di"
+	user_di "khrix/egommerce/internal/modules/user/di"
 	"khrix/egommerce/internal/modules/user/dto"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthController struct {
-	userService di.UserService
+	userService user_di.UserService
 	jwtService  di.JwtService
 }
 
-func NewAuthController(router *gin.RouterGroup, userServicer di.UserService, jwtService di.JwtService) {
+func NewAuthController(router *gin.RouterGroup, userServicer user_di.UserService, jwtService di.JwtService) {
 	controller := &AuthController{
 		userService: userServicer,
 		jwtService:  jwtService,

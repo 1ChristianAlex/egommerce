@@ -21,7 +21,7 @@ type UserInputDto struct {
 }
 
 type UserOutputDto struct {
-	ID       uint      `json:"id" `
+	UserID   int32     `json:"id" `
 	Username string    `json:"username" `
 	Name     string    `json:"name" `
 	Email    string    `json:"email" `

@@ -37,6 +37,7 @@ func (m ProductMapper) ToDto(item entities.Product) *dto.ProductOutputDto {
 		Feature: addons.Map(item.ProductFeatureItem, func(item *entities.ProductFeatureItem) dto.ProductFeatureItemOutputDto {
 			return *m.featureMapper.ToDto(*item)
 		}),
+		UserId: int32(item.UserID),
 	}
 }
 

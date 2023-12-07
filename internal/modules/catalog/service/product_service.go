@@ -30,8 +30,9 @@ func NewProductService(
 	}
 }
 
-func (service ProductService) CreateNewProduct(productItem dto.ProductInputDto) (*dto.ProductOutputDto, error) {
+func (service ProductService) CreateNewProduct(productItem dto.ProductInputDto, userId int32) (*dto.ProductOutputDto, error) {
 	entityItem := service.productMapper.ToEntity(productItem)
+	entityItem.UserID = uint(userId)
 	newProduct, productErr := service.productRepository.CreateNewProduct(&entityItem)
 
 	if productErr != nil {

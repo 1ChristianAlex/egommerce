@@ -15,7 +15,7 @@ func NewUserMapper() *UserMapper {
 
 func (m UserMapper) ToDto(item entities.User) dto.UserOutputDto {
 	return dto.UserOutputDto{
-		ID:       item.ID,
+		UserID:   int32(item.ID),
 		Username: item.Username,
 		Name:     item.Name,
 		Email:    item.Email,

@@ -13,9 +13,3 @@ type PasswordService interface {
 	HashPassword(password string) (string, error)
 	CheckPasswordHash(password, hash string) bool
 }
-
-type JwtService interface {
-	NewClains(user dto.UserOutputDto) (string, error)
-	FromClains(tokenString string) (*dto.UserOutputTokenDto, error)
-	IsValid(tokenString string) error
-}

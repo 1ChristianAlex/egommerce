@@ -19,7 +19,9 @@ func NewUserController(router *gin.RouterGroup, userServicer di.UserService) {
 		userService: userServicer,
 	}
 
-	router.POST("/create", controller.CreateNewUser)
+	routerGroup := router.Group("user")
+
+	routerGroup.POST("/create", controller.CreateNewUser)
 }
 
 func (controller *UserController) CreateNewUser(context *gin.Context) {

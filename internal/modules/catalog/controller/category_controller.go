@@ -29,7 +29,7 @@ func NewCategoryController(router *gin.RouterGroup, categoryService di.CategoryS
 func (c CategoryController) CreateNewCategory(context *gin.Context) {
 	var categoryBody dto.CreateCategoryInputDto
 
-	response.ControllerInputMethod(context, categoryBody, context.ShouldBindJSON, func(channel chan models.Resolve[dto.CategoryOutputDto]) {
+	response.ControllerInputMethod(context, &categoryBody, context.ShouldBindJSON, func(channel chan models.Resolve[dto.CategoryOutputDto]) {
 		if categoryBody.CategoryId == 0 {
 			newCategory, err := c.categoryService.CreateCategory(categoryBody.Name)
 			channel <- models.Resolve[dto.CategoryOutputDto]{Result: *newCategory, Err: err}
@@ -43,7 +43,7 @@ func (c CategoryController) CreateNewCategory(context *gin.Context) {
 func (c CategoryController) SetProductCategory(context *gin.Context) {
 	var productCategory dto.SetProductCategoryInputDto
 
-	response.ControllerInputMethod(context, productCategory, context.ShouldBindJSON, func(channel chan models.Resolve[dto.ProductOutputDto]) {
+	response.ControllerInputMethod(context, &productCategory, context.ShouldBindJSON, func(channel chan models.Resolve[dto.ProductOutputDto]) {
 		productItem, err := c.categoryService.SetProductCategory(productCategory.ProductId, productCategory.CategoryId)
 		channel <- models.Resolve[dto.ProductOutputDto]{Result: *productItem, Err: err}
 	})
@@ -59,7 +59,7 @@ func (c CategoryController) ListAllCategories(context *gin.Context) {
 func (c CategoryController) ListProductsFromCategory(context *gin.Context) {
 	var query dto.GetProductsCategory
 
-	response.ControllerInputMethod(context, query, context.ShouldBindUri, func(channel chan models.Resolve[*[]dto.ProductOutputDto]) {
+	response.ControllerInputMethod(context, &query, context.ShouldBindUri, func(channel chan models.Resolve[*[]dto.ProductOutputDto]) {
 		categories, err := c.categoryService.ProductsFromCategory(query.CategoryId)
 		channel <- models.Resolve[*[]dto.ProductOutputDto]{Result: categories, Err: err}
 	})

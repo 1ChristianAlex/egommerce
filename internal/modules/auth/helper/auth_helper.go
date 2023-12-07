@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"khrix/egommerce/internal/core/response"
-	"khrix/egommerce/internal/modules/user/di"
+	"khrix/egommerce/internal/modules/auth/di"
 	"khrix/egommerce/internal/modules/user/dto"
 
 	"github.com/gin-gonic/gin"
