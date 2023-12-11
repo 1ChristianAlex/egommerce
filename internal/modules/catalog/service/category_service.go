@@ -70,8 +70,8 @@ func (c CategoryService) SetProductCategory(productId, categoryId uint) (*dto.Pr
 	return c.productMapper.ToDto(*productUpdate), nil
 }
 
-func (c CategoryService) ListAllCategories() (*[]dto.CategoryOutputDto, error) {
-	categories, err := c.categoryRepository.ListAllCategories()
+func (c CategoryService) ListAllCategories(categoryId int32) (*[]dto.CategoryOutputDto, error) {
+	categories, err := c.categoryRepository.ListAllCategories(categoryId)
 	if err != nil {
 		return nil, err
 	}

@@ -7,5 +7,5 @@ type CategoryRepository interface {
 	CreateSubCategory(name string, categoryId uint) (*entities.Category, error)
 	SetProductCategory(productId, categoryId uint) (*entities.Product, error)
 	ListProductsFromCategory(categoryId uint) (*entities.Category, error)
-	ListAllCategories() (*[]entities.Category, error)
+	ListAllCategories(categoryId int32) (*[]entities.Category, error)
 }

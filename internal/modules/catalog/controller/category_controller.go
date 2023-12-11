@@ -50,8 +50,10 @@ func (c CategoryController) SetProductCategory(context *gin.Context) {
 }
 
 func (c CategoryController) ListAllCategories(context *gin.Context) {
-	response.ControllerBaseMethod(context, func(channel chan models.Resolve[[]dto.CategoryOutputDto]) {
-		categories, err := c.categoryService.ListAllCategories()
+	var category dto.CategoryById
+
+	response.ControllerInputMethod(context, &category, context.ShouldBindQuery, func(channel chan models.Resolve[[]dto.CategoryOutputDto]) {
+		categories, err := c.categoryService.ListAllCategories(category.CategoryID)
 		channel <- models.Resolve[[]dto.CategoryOutputDto]{Result: *categories, Err: err}
 	})
 }
