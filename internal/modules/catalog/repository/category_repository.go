@@ -119,9 +119,9 @@ func (r CategoryRepository) recursiveAddCategorie(item *entities.Category, paren
 
 	for _, granItem := range *parents {
 		if granItem.CategoryID != nil && item.ID == *granItem.CategoryID {
-			granChild = append(granChild, granItem)
 
 			r.recursiveAddCategorie(&granItem, parents, mapResult)
+			granChild = append(granChild, granItem)
 
 			delete(*mapResult, granItem.ID)
 		}
@@ -129,5 +129,6 @@ func (r CategoryRepository) recursiveAddCategorie(item *entities.Category, paren
 
 	if len(granChild) > 0 {
 		item.SubCategory = granChild
+		(*mapResult)[item.ID] = *item
 	}
 }

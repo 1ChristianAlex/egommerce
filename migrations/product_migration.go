@@ -36,7 +36,9 @@ func ProductMigration(database *gorm.DB) {
 		{Name: "Black"},
 	}}
 
-	database.FirstOrCreate(&colorFeature)
+	if exist := database.Find(&entities.ProductFeature{Name: "Color"}); exist.RowsAffected == 0 {
+		database.FirstOrCreate(&colorFeature)
+	}
 
 	firstCategory := entities.Category{
 		Name: "Test Category",
