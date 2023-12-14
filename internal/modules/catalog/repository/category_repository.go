@@ -96,7 +96,7 @@ func (r CategoryRepository) ListAllCategories(categoryId int32) (*[]entities.Cat
 				continue
 			}
 
-			r.recursiveAddCategorie(&item, &parents, &mapResult)
+			r.recursiveAddCategorie(uint(categoryId), &item, &parents, &mapResult)
 
 			parent.SubCategory = append(parent.SubCategory, item)
 
@@ -114,20 +114,21 @@ func (r CategoryRepository) ListAllCategories(categoryId int32) (*[]entities.Cat
 	return &newList, result.Error
 }
 
-func (r CategoryRepository) recursiveAddCategorie(item *entities.Category, parents *[]entities.Category, mapResult *map[uint]entities.Category) {
+func (r CategoryRepository) recursiveAddCategorie(categoryId uint, item *entities.Category, parents *[]entities.Category, mapResult *map[uint]entities.Category) {
 	granChild := make([]entities.Category, 0)
 
 	for _, granItem := range *parents {
 		if granItem.CategoryID != nil && item.ID == *granItem.CategoryID {
 
-			r.recursiveAddCategorie(&granItem, parents, mapResult)
+			r.recursiveAddCategorie(categoryId, &granItem, parents, mapResult)
 			granChild = append(granChild, granItem)
 
 			delete(*mapResult, granItem.ID)
+
 		}
 	}
 
-	if len(granChild) > 0 {
+	if len(granChild) > 0 && categoryId != item.ID {
 		item.SubCategory = granChild
 		(*mapResult)[item.ID] = *item
 	}
