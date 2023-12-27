@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	file_manager "khrix/egommerce/internal/libs/file_manager"
 	file_upload "khrix/egommerce/internal/libs/file_upload"
 	auth_controller "khrix/egommerce/internal/modules/auth/controller"
 	auth_helper "khrix/egommerce/internal/modules/auth/helper"
@@ -68,7 +69,22 @@ func StartServer() {
 	passwordS := user_service.NewPasswordService()
 	jwtS := auth_service.NewJwtService()
 	userS := user_service.NewUserService(userR, passwordS, userMapper)
-	productImageS := product_service.NewProductImageService(productImageR, productR, file_upload.NewFileUploadManager())
+	fileManager := file_manager.NewFileManager()
+
+	awsFileUpload := file_upload.NewAwsBuckerManager(
+		fileManager,
+		file_upload.S3Data{
+			Bucket:       os.Getenv("BUCKER_NAME"),
+			Key:          os.Getenv("BUCKER_KEY_IMAGES"),
+			BuckerRegion: os.Getenv("BUCKER_REGION"),
+		},
+	)
+
+	productImageS := product_service.NewProductImageService(
+		productImageR,
+		productR,
+		awsFileUpload,
+	)
 
 	productFeatureService := product_service.NewProductFeatureService(productFeatureRepository,
 		productFeatureMapper,

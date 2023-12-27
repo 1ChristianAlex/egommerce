@@ -11,10 +11,10 @@
 [x] Criação de item de grupo de filtros
 
 [x] busca por nome do produto
-[] feature de order (pagamento)
-[] feature de pagamento de order (pix ou boleto)
 [] integração com algum repositorio de imagem pra guardar num storage
-[] feature de recuperação de senha
 [] integração com algum serviço de email
 [] login por email
+[] feature de recuperação de senha
+[] feature de order (pagamento)
+[] feature de pagamento de order (pix ou boleto)
 [] calculo de frete
