@@ -1,7 +1,10 @@
 package fileupload
 
 import (
+	"fmt"
+	"net/http"
 	"os"
+	"path/filepath"
 
 	di_file_manager "khrix/egommerce/internal/libs/file_manager/di"
 
@@ -40,15 +43,20 @@ func (m AwsBuckerManager) createSession() *s3.S3 {
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
-	// Create a new instance of the service's client with a Session.
-	// Optional aws.Config values can also be provided as variadic arguments
-	// to the New function. This option allows you to provide service
-	// specific configuration.
-	return s3.New(sess, aws.NewConfig().WithRegion(m.s3Data.BuckerRegion))
+	return s3.New(sess, aws.NewConfig().WithRegion(*aws.String(m.s3Data.BuckerRegion)))
+}
+
+func (m AwsBuckerManager) generateFileLink(fileName string) *string {
+	url := "https://%s.s3.%s.amazonaws.com/%s"
+	url = fmt.Sprintf(url, m.s3Data.Bucket, m.s3Data.BuckerRegion, fileName)
+
+	return &url
 }
 
 func (m AwsBuckerManager) UploadFile(content []byte, filename string) (*string, error) {
 	tempPath, err := m.fileManager.CreateFile(content, filename)
+	cType := http.DetectContentType(content)
+
 	if err != nil {
 		return nil, err
 	}
@@ -63,16 +71,23 @@ func (m AwsBuckerManager) UploadFile(content []byte, filename string) (*string, 
 		m.fileManager.DeleteFile(*tempPath)
 	}()
 
+	fileNameKey := fmt.Sprintf("%s-%s", m.s3Data.Key, filepath.Base(tempFile.Name()))
+	publicTag := "public=yes"
+
 	putResponse, err := m.s3.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(m.s3Data.Bucket),
-		Key:    aws.String(m.s3Data.Key),
-		Body:   tempFile,
+		Bucket:      aws.String(m.s3Data.Bucket),
+		Key:         &fileNameKey,
+		Body:        tempFile,
+		Tagging:     &publicTag,
+		ContentType: &cType,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	imageUrl := putResponse.GoString()
+	uploadUrl := m.generateFileLink(fileNameKey)
 
-	return &imageUrl, nil
+	fmt.Printf("File Upload - %s - %s", *putResponse.ETag, *uploadUrl)
+
+	return uploadUrl, nil
 }

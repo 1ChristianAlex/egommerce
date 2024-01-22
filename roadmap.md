@@ -11,7 +11,7 @@
 [x] Criação de item de grupo de filtros
 
 [x] busca por nome do produto
-[] integração com algum repositorio de imagem pra guardar num storage
+[x] integração com algum repositorio de imagem pra guardar num storage
 [] integração com algum serviço de email
 [] login por email
 [] feature de recuperação de senha
