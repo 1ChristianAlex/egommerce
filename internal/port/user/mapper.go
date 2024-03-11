@@ -2,10 +2,9 @@ package user
 
 import (
 	"khrix/egommerce/internal/application/user/dto"
-	"khrix/egommerce/internal/infrastructure/database/models"
+	"khrix/egommerce/internal/port/libs"
 )
 
-type UserMapper interface {
-	ToDto(item models.User) dto.UserOutputDto
-	ToEntity(item dto.UserInputDto) models.User
+type UserMapper[R any] interface {
+	libs.BaseMapper[dto.UserInputDto, dto.UserOutputDto, R]
 }

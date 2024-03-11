@@ -13,14 +13,14 @@ type ProductService struct {
 	productRepository      catalog.ProductRepository
 	searchRepository       catalog.SearchRepository
 	productImageRepository catalog.ProductImageRepository
-	productMapper          catalog.ProductMapper
+	productMapper          catalog.ProductMapper[models.Product]
 }
 
 func NewProductService(
 	productRepository catalog.ProductRepository,
 	searchRepository catalog.SearchRepository,
 	productImageRepository catalog.ProductImageRepository,
-	productMapper catalog.ProductMapper,
+	productMapper catalog.ProductMapper[models.Product],
 ) *ProductService {
 	return &ProductService{
 		productRepository:      productRepository,
@@ -33,7 +33,7 @@ func NewProductService(
 func (service ProductService) CreateNewProduct(productItem dto.ProductInputDto, userId int32) (*dto.ProductOutputDto, error) {
 	entityItem := service.productMapper.ToEntity(productItem)
 	entityItem.UserID = uint(userId)
-	newProduct, productErr := service.productRepository.CreateNewProduct(&entityItem)
+	newProduct, productErr := service.productRepository.CreateNewProduct(entityItem)
 
 	if productErr != nil {
 		return nil, errors.New("error on create product")

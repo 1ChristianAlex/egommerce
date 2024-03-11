@@ -11,16 +11,16 @@ import (
 
 type ProductFeatureService struct {
 	productFeatureRepository catalog.ProductFeatureRepository
-	productFeatureMapper     catalog.ProductFeatureMapper
+	productFeatureMapper     catalog.ProductFeatureMapper[models.ProductFeature]
 	productFeatureItemMapper catalog.ProductFeatureItemMapper
-	productMapper            catalog.ProductMapper
+	productMapper            catalog.ProductMapper[models.Product]
 }
 
 func NewProductFeatureService(
 	productFeatureRepository catalog.ProductFeatureRepository,
-	productFeatureMapper catalog.ProductFeatureMapper,
+	productFeatureMapper catalog.ProductFeatureMapper[models.ProductFeature],
 	productFeatureItemMapper catalog.ProductFeatureItemMapper,
-	productMapper catalog.ProductMapper,
+	productMapper catalog.ProductMapper[models.Product],
 ) *ProductFeatureService {
 	return &ProductFeatureService{
 		productFeatureRepository: productFeatureRepository,

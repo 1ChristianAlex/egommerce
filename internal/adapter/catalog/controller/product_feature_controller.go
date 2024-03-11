@@ -15,15 +15,8 @@ type ProductFeatureController struct {
 	productFeatureService catalog.ProductFeatureService
 }
 
-func NewProductFeatureController(router *gin.RouterGroup, productFeatureService catalog.ProductFeatureService) {
-	controller := ProductFeatureController{productFeatureService: productFeatureService}
-
-	routerGroup := router.Group("/feature")
-
-	routerGroup.POST("/", controller.CreateProductFeature)
-	routerGroup.POST("/item", controller.CreateFeatureItem)
-	routerGroup.POST("/item/bind", controller.CreateFeatureItemBind)
-	routerGroup.POST("/product", controller.CreateProductFeatureBind)
+func NewProductFeatureController(productFeatureService catalog.ProductFeatureService) *ProductFeatureController {
+	return &ProductFeatureController{productFeatureService: productFeatureService}
 }
 
 func (c ProductFeatureController) CreateProductFeature(context *gin.Context) {

@@ -2,10 +2,9 @@ package catalog
 
 import (
 	"khrix/egommerce/internal/application/catalog/dto"
-	"khrix/egommerce/internal/infrastructure/database/models"
+	"khrix/egommerce/internal/port/libs"
 )
 
-type ProductMapper interface {
-	ToDto(item models.Product) *dto.ProductOutputDto
-	ToEntity(item dto.ProductInputDto) models.Product
+type ProductMapper[R any] interface {
+	libs.BaseMapper[dto.ProductInputDto, dto.ProductOutputDto, R]
 }

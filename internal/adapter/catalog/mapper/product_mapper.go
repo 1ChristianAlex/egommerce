@@ -8,12 +8,12 @@ import (
 )
 
 type ProductMapper struct {
-	categoryMapper catalog.CategoryMapper
+	categoryMapper catalog.CategoryMapper[models.Category]
 	featureMapper  catalog.ProductFeatureItemMapper
 }
 
 func NewProductMapper(
-	categoryMapper catalog.CategoryMapper,
+	categoryMapper catalog.CategoryMapper[models.Category],
 	featureMapper catalog.ProductFeatureItemMapper,
 ) *ProductMapper {
 	return &ProductMapper{
@@ -41,8 +41,8 @@ func (m ProductMapper) ToDto(item models.Product) *dto.ProductOutputDto {
 	}
 }
 
-func (m ProductMapper) ToEntity(item dto.ProductInputDto) models.Product {
-	return models.Product{
+func (m ProductMapper) ToEntity(item dto.ProductInputDto) *models.Product {
+	return &models.Product{
 		Name:          item.Name,
 		Description:   item.Description,
 		Price:         item.Price,

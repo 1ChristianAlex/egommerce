@@ -39,12 +39,20 @@ func bindHttpCategoryController(router *gin.RouterGroup, controller catalog_port
 	router.GET("/:categoryId", controller.ListProductsFromCategory)
 }
 
+func bindHttpProductFeatureController(router *gin.RouterGroup, controller catalog_port.ProductFeatureController[gin.Context]) {
+	router.POST("/", controller.CreateProductFeature)
+	router.POST("/item", controller.CreateFeatureItem)
+	router.POST("/item/bind", controller.CreateFeatureItemBind)
+	router.POST("/product", controller.CreateProductFeatureBind)
+}
+
 func StartServer(
 	authController auth_port.AuthController[gin.Context],
 	userController user_port.UserController[gin.Context],
 	productController catalog_port.ProductController[gin.Context],
 	productImageController catalog_port.ProductImageController[gin.Context],
 	categoryController catalog_port.CategoryController[gin.Context],
+	productFeatureController catalog_port.ProductFeatureController[gin.Context],
 	authHelper *auth_helper.AuthHelper,
 ) {
 	router := gin.Default()
@@ -77,6 +85,7 @@ func StartServer(
 	bindHttpProductImageController(apiRouter.Group("product"), productImageController)
 
 	bindHttpCategoryController(apiRouter.Group("/category"), categoryController)
+	bindHttpProductFeatureController(apiRouter.Group("/feature"), productFeatureController)
 
 	httpServer.ListenAndServe()
 }

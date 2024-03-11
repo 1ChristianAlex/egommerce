@@ -11,16 +11,16 @@ import (
 
 type CategoryService struct {
 	categoryRepository catalog.CategoryRepository
-	categoryMapper     catalog.CategoryMapper
+	categoryMapper     catalog.CategoryMapper[models.Category]
 	productRepository  catalog.ProductRepository
-	productMapper      catalog.ProductMapper
+	productMapper      catalog.ProductMapper[models.Product]
 }
 
 func NewCategoryService(
 	categoryRepository catalog.CategoryRepository,
-	categoryMapper catalog.CategoryMapper,
+	categoryMapper catalog.CategoryMapper[models.Category],
 	productRepository catalog.ProductRepository,
-	productMapper catalog.ProductMapper,
+	productMapper catalog.ProductMapper[models.Product],
 ) *CategoryService {
 	return &CategoryService{
 		categoryRepository: categoryRepository,

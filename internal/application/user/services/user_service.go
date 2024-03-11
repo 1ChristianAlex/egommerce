@@ -4,16 +4,17 @@ import (
 	"errors"
 
 	"khrix/egommerce/internal/application/user/dto"
+	"khrix/egommerce/internal/infrastructure/database/models"
 	"khrix/egommerce/internal/port/user"
 )
 
 type UserService struct {
 	repository      user.UserRepository
 	passwordService user.PasswordService
-	userMapper      user.UserMapper
+	userMapper      user.UserMapper[models.User]
 }
 
-func NewUserService(repository user.UserRepository, passwordService user.PasswordService, userMapper user.UserMapper) *UserService {
+func NewUserService(repository user.UserRepository, passwordService user.PasswordService, userMapper user.UserMapper[models.User]) *UserService {
 	return &UserService{
 		repository:      repository,
 		passwordService: passwordService,
@@ -37,11 +38,11 @@ func (service UserService) CreateNewUser(userInput *dto.UserInputDto) (newUser *
 	userModel := service.userMapper.ToEntity(*userInput)
 	userModel.Password = hash
 
-	user, err := service.repository.CreateUser(&userModel)
+	user, err := service.repository.CreateUser(userModel)
 
 	result := service.userMapper.ToDto(*user)
 
-	return &result, err
+	return result, err
 }
 
 func (service UserService) TryLogin(email, password string) (newUser *dto.UserOutputDto, error error) {
@@ -56,5 +57,5 @@ func (service UserService) TryLogin(email, password string) (newUser *dto.UserOu
 
 	result := service.userMapper.ToDto(*user)
 
-	return &result, err
+	return result, err
 }

@@ -84,6 +84,7 @@ func StartApp() {
 		product_controller.NewProductController(productS, productFeatureService, authHelper),
 		product_controller.NewProductImageController(productS, productImageS),
 		product_controller.NewCategoryController(categoryService),
+		product_controller.NewProductFeatureController(productFeatureService),
 		auth_helper.NewAuthHelper(jwtS),
 	)
 }

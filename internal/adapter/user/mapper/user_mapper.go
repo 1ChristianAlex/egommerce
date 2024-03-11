@@ -13,8 +13,8 @@ func NewUserMapper() *UserMapper {
 	return &UserMapper{}
 }
 
-func (m UserMapper) ToDto(item models.User) dto.UserOutputDto {
-	return dto.UserOutputDto{
+func (m UserMapper) ToDto(item models.User) *dto.UserOutputDto {
+	return &dto.UserOutputDto{
 		UserID:   int32(item.ID),
 		Username: item.Username,
 		Name:     item.Name,
@@ -23,8 +23,8 @@ func (m UserMapper) ToDto(item models.User) dto.UserOutputDto {
 	}
 }
 
-func (m UserMapper) ToEntity(item dto.UserInputDto) models.User {
-	return models.User{
+func (m UserMapper) ToEntity(item dto.UserInputDto) *models.User {
+	return &models.User{
 		Username: item.Username,
 		Password: item.Password,
 		Name:     item.Name,
