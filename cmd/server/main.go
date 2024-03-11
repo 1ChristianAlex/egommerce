@@ -1,7 +1,7 @@
 package main
 
-import "khrix/egommerce/internal/core/app"
+import "khrix/egommerce/internal/core"
 
 func main() {
-	app.StartServer()
+	core.StartApp()
 }
